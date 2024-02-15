@@ -1,2 +1,2 @@
-# Segreteria
-Il Progetto Segreteria per l'esame di Reti di Calcolatori
+# Progetto università
+Il Progetto Università per l'esame di Reti di Calcolatori
