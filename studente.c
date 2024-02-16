@@ -8,6 +8,21 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <string.h>
+
+void ricerca_esami(){
+    char corso[20];
+    printf("Per quale corso vuoi ricercare: ");
+    scanf("%s",&corso);
+    printf("Lo studente chiede alla segreteria se ci sono esami disponibili per ",corso);
+    
+
+}
+
+void richiesta_prenotazione(){
+
+}
+
 
 int main(int argc, char **argv){
     int                sockfd, n;
@@ -45,12 +60,4 @@ int main(int argc, char **argv){
 
     }
  
-}
-
-void ricerca_esami(){
-
-}
-
-void richiesta_prenotazione(){
-    
 }
