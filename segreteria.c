@@ -1,6 +1,7 @@
 //richiesta studente
 //mandare informazione a server universitario
-
+//collegamento segreteria <-> studente, port = 1024
+//collegamento segreteria <-> server universitario, port = 1025
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,9 +24,19 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-
-void ascolto(int connfd,int listenfd, char * buff,time_t ticks)
+//funzione che si collega con  il client
+void ascolto(int connfd,int listenfd, char * buff,time_t ticks, struct sockaddr_in server)
 {
+    if ( bind(listenfd, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
+    perror("bind");
+    exit(1);
+  }
+
+    if ( listen(listenfd, 1024) < 0 ) {
+    perror("listen");
+    exit(1);
+  }
+
     printf("in attesa\n");
     if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
       perror("accept");
@@ -42,18 +53,58 @@ void ascolto(int connfd,int listenfd, char * buff,time_t ticks)
     printf("socket chiuso\n");
 }
 
-void inserimento_esame()
+//funzione che si collega con il server
+void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
-  /*
-    1. creare puntatore file
+    //ora creiamo la socket che funge da client
 
+  client.sin_family = AF_INET;
+  client.sin_port   = htons(1025);
+  client.sin_addr.s_addr = inet_addr("127.0.0.1");
+  /*if (inet_pton(AF_INET,"127.0.0.1", &client.sin_addr) < 0) {
+      fprintf(stderr,"inet_pton error for \n");
+      exit (1);
+    }
   */
 
+  if ( bind(listenfd, (struct sockaddr *) &client, sizeof(client)) < 0 ) {
+    perror("bind");
+    exit(1);
+  }
+   if ( listen(listenfd, 1025) < 0 ) {
+    perror("listen");
+    exit(1);
+  }
+}
+
+
+Esame inserimento_esame()
+{
+
+ //inserimento dei dati nella tupla (buffer) che verrà mandato al server universitario
+  Esame tupla ;
+  printf("Inserisci ID esame\n");
+  scanf("%d",&tupla.ID);
+  
+  printf("Inserisci nome esame\n");
+  scanf("%s",&tupla.nome);
+
+  printf("inserisci giorno esame\n");
+  scanf("%d",&tupla.data.day);
+  printf("inserisci mese esame\n");
+  scanf("%d",&tupla.data.month);
+  printf("inserisci anno esame\n");
+  scanf("%d",&tupla.data.year);
+
+  tupla.numero_prenotati = 0;
+
+  return tupla;
+  
 }
 int main(int argc, char **argv)
 {
   int          listenfd, connfd;
-  struct sockaddr_in  servaddr;
+  struct sockaddr_in  server, client;
   char        buff[4096];
   time_t        ticks;  
   if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
@@ -61,17 +112,9 @@ int main(int argc, char **argv)
     exit(1);
     }
 
-  servaddr.sin_family      = AF_INET;
-  servaddr.sin_port        = htons(1024);
-  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  if ( bind(listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
-    perror("bind");
-    exit(1);
-  }
-  if ( listen(listenfd, 1024) < 0 ) {
-    perror("listen");
-    exit(1);
-  }
+  server.sin_family      = AF_INET;
+  server.sin_port        = htons(1024);
+  server.sin_addr.s_addr = htonl(INADDR_ANY);
 
   /////////////////////////////////////////////////////
   int scelta;
