@@ -14,7 +14,9 @@ void ricerca_esami(){
     char corso[20];
     printf("Per quale corso vuoi ricercare: ");
     scanf("%s",&corso);
-    printf("Lo studente chiede alla segreteria se ci sono esami disponibili per ",corso);
+    printf("Hai chiesto alla segreteria se ci sono esami per ",corso);
+    printf("\nattendere prego..");
+    
     
 
 }
