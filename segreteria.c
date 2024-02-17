@@ -101,6 +101,7 @@ Esame inserimento_esame()
   return tupla;
   
 }
+
 int main(int argc, char **argv)
 {
   int          listenfd, connfd;
@@ -126,11 +127,12 @@ int main(int argc, char **argv)
     {
       case 1: 
         //funzione nuovo esame
+        inviaInfo(client, tupla, listenfd);
         printf("fare funzione nuovo esame\n");
         break;
       
       case 2: 
-        ascolto(connfd,listenfd, buff,ticks);
+        ascolto(connfd,listenfd, buff,ticks,server);
         break;
 
       default: 
