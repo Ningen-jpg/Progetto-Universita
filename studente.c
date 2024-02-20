@@ -16,21 +16,34 @@ void ricerca_esami(){
     scanf("%s",&corso);
     printf("Hai chiesto alla segreteria se ci sono esami per ",corso);
     printf("\nattendere prego..");
-    
-    
+  
+}
+//la close del socket va fatta solo una volta che a studente torna i dati (le date di esame) che stava cercando
+void sendID(int argc, char **argv) // (numero parametri, array di stringhe (indirizzo ip))
+{
+  int fd = creaSocket(argc, argv);
+
+  //inseriamo ID da cercare
+  printf("Inserire ID d'esame da cercare: ");
+  int id ;
+  scanf("%d",&id);
+
+  //mandiamo a segreteria l'ID
+
+  if( write(fd, id, sizeof(id)) != sizeof(id))
+  {
+    perror("write");
+    exit(1);
+  }
+
+  printf("inviato ID\n"); //test
 
 }
 
-void richiesta_prenotazione(){
-
-}
-
-
-int main(int argc, char **argv){
-  int                sockfd, n;
-  char               recvline[1025];
+int creaSocket(int argc, int ** argv)
+{
+  int sockfd;
   struct sockaddr_in servaddr;
-  char buffer[INET6_ADDRSTRLEN];
 
   if (argc != 2) {
     fprintf(stderr,"Devi inserire anche l'indirizzo: %s <IPaddress>\n",argv[0]);
@@ -51,9 +64,29 @@ int main(int argc, char **argv){
     fprintf(stderr,"Errore di connessione\n");
     exit(1);
   }
-
   printf("Connessione avvenuta con la segreteria.");
+
+  //ritorna il file descriptor della connessione avvenuta con server
+  return sockfd;
+  //ora siamo connessi con la segreteria 
+}
+
+
+void richiesta_prenotazione(){
+
+}
+
+
+int main(int argc, char **argv){
+
+  sendID (argc, argv);
+ // char buffer[INET6_ADDRSTRLEN];
+
+
   //switch-case da implementare per la scelta delle operazioni
+
+  /*        test
+  
   int scelta;
   while (1)
   {
@@ -75,6 +108,6 @@ int main(int argc, char **argv){
     }
   }
  
-
+*/ //fine test
 
 }

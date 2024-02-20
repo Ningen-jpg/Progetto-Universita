@@ -24,9 +24,21 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-//funzione che si collega con il client
-void ascolto(int connfd,int listenfd, char * buff,time_t ticks, struct sockaddr_in server)
+//funzione che si collega con il client 
+//fa fungere segreteria come server in questo caso
+//prende la richiesta da parte del client studente 
+int get_data(int connfd,int listenfd, char * buff,struct sockaddr_in server)
 {
+  int buff = 0;
+  if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
+    perror("socket");
+    exit(1);
+  }
+
+  server.sin_family      = AF_INET;
+  server.sin_port        = htons(1024);
+  server.sin_addr.s_addr = htonl(INADDR_ANY);
+
   if ( bind(listenfd, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
     perror("bind");
     exit(1);
@@ -36,24 +48,40 @@ void ascolto(int connfd,int listenfd, char * buff,time_t ticks, struct sockaddr_
     perror("listen");
     exit(1);
   }
-
   printf("in attesa\n");
   if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
       perror("accept");
       exit(1);
   }
   printf("client accettato\n");
-  ticks = time(NULL);
-  snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
-  if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
+
+  //snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
+  //dobbiamo mettere all'interno del buffer la nuova tupla
+  /*if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
       perror("write");
       exit(1);
   }
-  close(connfd);
+  */
+  int key;
+  if((key = read (connfd, buff, 1024) ) < 0) //legge la chiave da cercare (mandata da studente)
+  {
+    perror("errore read");
+    exit(1);
+  }
+  //la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
+  
+  //close(connfd);
   printf("socket chiuso\n");
+  printf("chiave = %d\n", key); //test
+  return key;
 }
 
-//funzione che si collega con il server
+void prende_ID(int listenfd, int connfd, int buffer)
+{
+
+}
+
+//funzione che si collega con il server per inviare la tupla al server universitario
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
     //ora creiamo la socket che funge da client
@@ -106,16 +134,7 @@ int main(int argc, char **argv)
 {
   int          listenfd, connfd;
   struct sockaddr_in  server, client;
-  char        buff[4096];
-  time_t        ticks;  
-  if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
-    perror("socket");
-    exit(1);
-    }
-
-  server.sin_family      = AF_INET;
-  server.sin_port        = htons(1024);
-  server.sin_addr.s_addr = htonl(INADDR_ANY);
+ 
 
   /////////////////////////////////////////////////////
   int scelta;
@@ -127,12 +146,12 @@ int main(int argc, char **argv)
     {
       case 1: 
         //funzione nuovo esame
-        inviaInfo(client, tupla, listenfd);
+      //  inviaInfo(client, tupla, listenfd);
         printf("fare funzione nuovo esame\n");
         break;
       
       case 2: 
-        ascolto(connfd,listenfd, buff,ticks,server);
+      //  ascolto(connfd,listenfd, buff,ticks,server);
         break;
 
       default: 
