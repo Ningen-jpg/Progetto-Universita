@@ -24,33 +24,33 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-//funzione che si collega con  il client
+//funzione che si collega con il client
 void ascolto(int connfd,int listenfd, char * buff,time_t ticks, struct sockaddr_in server)
 {
-    if ( bind(listenfd, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
+  if ( bind(listenfd, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
     perror("bind");
     exit(1);
   }
 
-    if ( listen(listenfd, 1024) < 0 ) {
+  if ( listen(listenfd, 1024) < 0 ) {
     perror("listen");
     exit(1);
   }
 
-    printf("in attesa\n");
-    if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
+  printf("in attesa\n");
+  if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
       perror("accept");
       exit(1);
-    }
-    printf("client accettato\n");
-    ticks = time(NULL);
-    snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
-    if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
+  }
+  printf("client accettato\n");
+  ticks = time(NULL);
+  snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
+  if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
       perror("write");
       exit(1);
-    }
-    close(connfd);
-    printf("socket chiuso\n");
+  }
+  close(connfd);
+  printf("socket chiuso\n");
 }
 
 //funzione che si collega con il server
@@ -71,7 +71,7 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
     perror("bind");
     exit(1);
   }
-   if ( listen(listenfd, 1025) < 0 ) {
+  if ( listen(listenfd, 1025) < 0 ) {
     perror("listen");
     exit(1);
   }
