@@ -10,37 +10,17 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-void ricerca_esami(){
+/*void ricerca_esami(){
     char corso[20];
     printf("Per quale corso vuoi ricercare: ");
     scanf("%s",&corso);
     printf("Hai chiesto alla segreteria se ci sono esami per ",corso);
     printf("\nattendere prego..");
   
-}
+}*/
+
 //la close del socket va fatta solo una volta che a studente torna i dati (le date di esame) che stava cercando
-void sendID(int argc, char **argv) // (numero parametri, array di stringhe (indirizzo ip))
-{
-  int fd = creaSocket(argc, argv);
-
-  //inseriamo ID da cercare
-  printf("Inserire ID d'esame da cercare: ");
-  int id ;
-  scanf("%d",&id);
-
-  //mandiamo a segreteria l'ID
-
-  if( write(fd, id, sizeof(id)) != sizeof(id))
-  {
-    perror("write");
-    exit(1);
-  }
-
-  printf("inviato ID\n"); //test
-
-}
-
-int creaSocket(int argc, int ** argv)
+int creaSocket(int argc, char ** argv)
 {
   int sockfd;
   struct sockaddr_in servaddr;
@@ -70,6 +50,27 @@ int creaSocket(int argc, int ** argv)
   return sockfd;
   //ora siamo connessi con la segreteria 
 }
+void sendID(int argc, char **argv) // (numero parametri, array di stringhe (indirizzo ip))
+{
+  int fd = creaSocket(argc, argv);
+
+  //inseriamo ID da cercare
+  printf("Inserire ID d'esame da cercare: ");
+  int * id;
+  scanf("%d",id);
+
+  //mandiamo a segreteria l'ID
+
+  if( write(fd, id, sizeof(id)) != sizeof(id))
+  {
+    perror("write");
+    exit(1);
+  }
+
+  printf("inviato ID\n"); //test
+
+}
+
 
 
 void richiesta_prenotazione(){

@@ -27,9 +27,9 @@ typedef struct{
 //funzione che si collega con il client 
 //fa fungere segreteria come server in questo caso
 //prende la richiesta da parte del client studente 
-int get_data(int connfd,int listenfd, char * buff,struct sockaddr_in server)
+int get_data(int connfd,int listenfd,struct sockaddr_in server)
 {
-  int buff = 0;
+  int *buff=0;
   if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
     perror("socket");
     exit(1);
@@ -76,10 +76,10 @@ int get_data(int connfd,int listenfd, char * buff,struct sockaddr_in server)
   return key;
 }
 
-void prende_ID(int listenfd, int connfd, int buffer)
+/*void prende_ID(int listenfd, int connfd, int buffer)
 {
 
-}
+}*/
 
 //funzione che si collega con il server per inviare la tupla al server universitario
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
@@ -106,7 +106,7 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 }
 
 
-Esame inserimento_esame()
+/*Esame inserimento_esame()
 {
 
  //inserimento dei dati nella tupla (buffer) che verrà mandato al server universitario
@@ -128,16 +128,17 @@ Esame inserimento_esame()
 
   return tupla;
   
-}
+}*/
 
 int main(int argc, char **argv)
 {
   int          listenfd, connfd;
   struct sockaddr_in  server, client;
  
-
+  int iid=get_data(connfd,listenfd,server);
+  printf("%d",iid);
   /////////////////////////////////////////////////////
-  int scelta;
+  /*int scelta;
   while (1)
   {
     printf("Selezionare 1 per mandare nuovo esame a server\n inserire 2 per rimanere in attesa");
@@ -159,7 +160,7 @@ int main(int argc, char **argv)
         break;
     }
 
-  }
+  }*/
 
 }
 
