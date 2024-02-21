@@ -50,27 +50,23 @@ int creaSocket(int argc, char ** argv)
   return sockfd;
   //ora siamo connessi con la segreteria 
 }
-void sendID(int argc, char **argv) // (numero parametri, array di stringhe (indirizzo ip))
-{
+
+void sendID(int argc, char **argv) {
   int fd = creaSocket(argc, argv);
 
-  //inseriamo ID da cercare
+  // Inizializza una variabile intera per l'ID e chiedi all'utente di inserirlo
+  int id;
   printf("Inserire ID d'esame da cercare: ");
-  int * id;
-  scanf("%d",id);
+  scanf("%d", &id);
 
-  //mandiamo a segreteria l'ID
-
-  if( write(fd, id, sizeof(id)) != sizeof(id))
-  {
+  // Invia l'ID alla segreteria
+  if (write(fd, &id, sizeof(id)) != sizeof(id)) {
     perror("write");
     exit(1);
   }
 
-  printf("inviato ID\n"); //test
-
+  printf("Inviato ID\n");
 }
-
 
 
 void richiesta_prenotazione(){
