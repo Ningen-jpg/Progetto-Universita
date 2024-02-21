@@ -63,7 +63,7 @@ void sendID(int argc, char **argv) {
     exit(1);
   }
 
-  printf("Inviato ID\n");
+  printf("ID inviato\n");
 }
 
 
