@@ -81,6 +81,7 @@ int get_data(int connfd,int listenfd,struct sockaddr_in server)
 
 }*/
 
+//SERVER FUNCTION
 //funzione che si collega con il server per inviare la tupla al server universitario
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
