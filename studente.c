@@ -44,7 +44,7 @@ int creaSocket(int argc, char ** argv)
     fprintf(stderr,"Errore di connessione\n");
     exit(1);
   }
-  printf("Connessione avvenuta con la segreteria.");
+  printf("Connessione avvenuta con la segreteria.\n");
 
   //ritorna il file descriptor della connessione avvenuta con server
   return sockfd;
@@ -54,7 +54,7 @@ int creaSocket(int argc, char ** argv)
 void sendID(int argc, char **argv) {
   int fd = creaSocket(argc, argv);
   int id;
-  printf("Inserire ID d'esame da cercare: ");
+  printf("Inserire ID d'esame da cercare:\t");
   scanf("%d", &id);
 
   // Invia l'ID alla segreteria

@@ -29,7 +29,7 @@ typedef struct{
 //prende la richiesta da parte del client studente 
 int get_data(int connfd,int listenfd,struct sockaddr_in server)
 {
-  int *buff=0;
+  int * buff = (int *) calloc (1,sizeof(int));
   if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
     perror("socket");
     exit(1);
@@ -63,16 +63,18 @@ int get_data(int connfd,int listenfd,struct sockaddr_in server)
   }
   */
   int key;
-  if((key = read (connfd, buff, 1024) ) < 0) //legge la chiave da cercare (mandata da studente)
+  if((read (connfd, buff, 1024) ) < 0) //legge la chiave da cercare (mandata da studente)
   {
     perror("errore read");
     exit(1);
   }
+  key = *buff;
   //la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
   
   //close(connfd);
-  printf("socket chiuso\n");
+  //printf("socket chiuso\n");
   printf("chiave = %d\n", key); //test
+  free(buff);
   return key;
 }
 
