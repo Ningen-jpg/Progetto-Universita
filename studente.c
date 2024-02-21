@@ -13,13 +13,13 @@
 /*void ricerca_esami(){
     char corso[20];
     printf("Per quale corso vuoi ricercare: ");
-    scanf("%s",&corso);
-    printf("Hai chiesto alla segreteria se ci sono esami per ",corso);
+    scanf("%s",corso);
+    printf("Hai chiesto alla segreteria se ci sono esami per %s",corso);
     printf("\nattendere prego..");
   
 }*/
 
-//la close del socket va fatta solo una volta che a studente torna i dati (le date di esame) che stava cercando
+//la close del socket và fatta solo una volta che a studente vengono inviati i dati (le date di esame) che stava cercando
 int creaSocket(int argc, char ** argv)
 {
   int sockfd;
