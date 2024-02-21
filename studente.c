@@ -53,8 +53,6 @@ int creaSocket(int argc, char ** argv)
 
 void sendID(int argc, char **argv) {
   int fd = creaSocket(argc, argv);
-
-  // Inizializza una variabile intera per l'ID e chiedi all'utente di inserirlo
   int id;
   printf("Inserire ID d'esame da cercare: ");
   scanf("%d", &id);
