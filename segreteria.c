@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <time.h>
+//#include <time.h>
 typedef struct 
 {
     unsigned int day;       //27-03-2020 la function atoi cambia la stringa in int
