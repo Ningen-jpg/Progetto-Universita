@@ -27,7 +27,7 @@ typedef struct{
 //funzione che si collega con il client 
 //fa fungere segreteria come server in questo caso
 //prende la richiesta da parte del client studente 
-int get_data(int connfd,int listenfd,struct sockaddr_in server)
+int manage_exams(int connfd,int listenfd,struct sockaddr_in server)
 {
   int * buff = (int *) calloc (1,sizeof(int));
   if ( ( listenfd = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
@@ -48,34 +48,39 @@ int get_data(int connfd,int listenfd,struct sockaddr_in server)
     perror("listen");
     exit(1);
   }
-  printf("in attesa\n");
-  if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
-      perror("accept");
-      exit(1);
-  }
-  printf("client accettato\n");
 
-  //snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
-  //dobbiamo mettere all'interno del buffer la nuova tupla
-  /*if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
-      perror("write");
-      exit(1);
-  }
-  */
-  int key;
-  if((read (connfd, buff, 1024) ) < 0) //legge la chiave da cercare (mandata da studente)
-  {
-    perror("errore read");
-    exit(1);
-  }
-  key = *buff;
-  //la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
-  
-  //close(connfd);
-  //printf("socket chiuso\n");
-  printf("chiave = %d\n", key); //test
-  free(buff);
-  return key;
+  while(1)
+    {
+      printf("in attesa\n");
+      if ( ( connfd = accept(listenfd, (struct sockaddr *) NULL, NULL) ) < 0 ) {
+          perror("accept");
+          exit(1);
+      }
+      printf("client accettato\n");
+
+      //snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks)); //%.24s ctime(&ticks)
+      //dobbiamo mettere all'interno del buffer la nuova tupla
+      /*if ( write(connfd, buff, strlen(buff)) != strlen(buff)) {
+          perror("write");
+          exit(1);
+      }
+      */
+      int key;
+      if((read (connfd, buff, 1024) ) < 0) //legge la chiave da cercare (mandata da studente)
+      {
+        perror("errore read");
+        exit(1);
+      }
+      key = *buff;
+      //la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
+      
+      //close(connfd);
+      //printf("socket chiuso\n");
+      printf("chiave = %d\n", key); //test
+      free(buff);
+      return key;
+    }
+    
 }
 
 /*void prende_ID(int listenfd, int connfd, int buffer)
@@ -138,7 +143,7 @@ int main(int argc, char **argv)
   int          listenfd, connfd;
   struct sockaddr_in  server, client;
  
-  int iid=get_data(connfd,listenfd,server);
+  int iid=manage_exams(connfd,listenfd,server);
   printf("%d",iid);
   /////////////////////////////////////////////////////
   /*int scelta;
