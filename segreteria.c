@@ -27,6 +27,8 @@ typedef struct{
 //funzione che si collega con il client 
 //fa fungere segreteria come server in questo caso
 //prende la richiesta da parte del client studente 
+
+//fino ad adesso riceve ID da studente
 int manage_exams(int connfd,int listenfd,struct sockaddr_in server)
 {
   int * buff = (int *) calloc (1,sizeof(int));
@@ -34,6 +36,7 @@ int manage_exams(int connfd,int listenfd,struct sockaddr_in server)
     perror("socket");
     exit(1);
   }
+  printf("questa è listen fd : %d\n", listenfd);
 
   server.sin_family      = AF_INET;
   server.sin_port        = htons(1024);
@@ -140,7 +143,7 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 
 int main(int argc, char **argv)
 {
-  int          listenfd, connfd;
+  int   listenfd, connfd,socketClientFD;
   struct sockaddr_in  server, client;
  
   int iid=manage_exams(connfd,listenfd,server);
