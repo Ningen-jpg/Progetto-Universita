@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
+
 typedef struct 
 {
     unsigned int day;       //27-03-2020 la function atoi cambia la stringa in int
@@ -68,7 +70,7 @@ ssize_t FullWrite(int fd, const void *buf, size_t count)
 int get_key()
 {
     int listenFD;
-    struct sockladdr_in server;
+    struct sockaddr_in server;
 
     //creiamo la socket
      if ( ( listenFD = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
@@ -93,16 +95,13 @@ int get_key()
     int connectFD;
     int key;
     connectFD=accept(listenFD, NULL, NULL);
-    FullRead(connectFD,key,sizeof(key));
+    FullRead(connectFD,&key,sizeof(key));
 
     return key;
 
 }
 int main(int argc, char **argv)
-{
-    
-
-
+{ 
     char buffer[1024];
     char * data;
     printf("\n==============================\n");
@@ -137,32 +136,28 @@ int main(int argc, char **argv)
     printf("inizia il while qui\n");
 
     //inizializziamo matrice
-    int i,j;
+    int i, j;
 
-    char matrice = (char **) calloc(1024 * 1024,sizeof(char *));
-    /*
-    for (i = 0; i < 1024; ++i)
-    {
-        matrice[i] = (char *) calloc(1024,sizeof(char));
-    }
-    */
-    i = 0;
+    char** matrice = (char**)calloc(10, sizeof(char*));
+    for (int i = 0; i < 10; i++) 
+        matrice[i] = (char*)calloc(10, sizeof(char));
+
     while(fgets(buffer, sizeof(buffer), esami))
     {
        // printf("%s\n",buffer);
         data = strtok(buffer,",");
-        if(data == key)
+        int chiave = atoi(data);
+        if(chiave == key)
         {
-            strcpy(*matrice,buffer);
-            puts(matrice);
+            strcpy(matrice[i],buffer);
+            puts(matrice[i]);
             i++;
         }
-
+        
         printf("\n");
     }
 
-    
     fclose(esami);
-
+    free(matrice);
     printf("\n==============================\n");
 }

@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -112,6 +111,7 @@ ssize_t FullWrite(int fd, const void *buf, size_t count)
 
 int main(int argc, char **argv){
     int listenFD, connectFD, socketClientFD;
+    int pid;
     struct sockaddr_in server_addr, client_addr;
     char readBuf[1024], writeBuf[1024];
     //da decommentare 
