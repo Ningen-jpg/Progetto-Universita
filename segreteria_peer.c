@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <time.h>
 #include <errno.h>
 
 typedef struct 
@@ -24,23 +23,6 @@ typedef struct{
 }Esame;
 
 
-int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
-{
-  int * buff = (int *) calloc (1,sizeof(int));
-  int key;
-
-  if ((FullRead(connfd, buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
-  {
-      perror("errore read");
-      exit(1);
-  }
-  key = *buff;
-  // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
-
-  printf("chiave = %d\n", key); // test
-  free(buff);
-  return key;
-}
 ssize_t FullRead(int fd, void *buf, size_t count) 
 {
    size_t nleft;
@@ -61,6 +43,23 @@ ssize_t FullRead(int fd, void *buf, size_t count)
    }
      buf=0;
      return (nleft);
+}
+int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
+{
+  int * buff = (int *) calloc (1,sizeof(int));
+  int key;
+
+  if ((FullRead(connfd, buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
+  {
+      perror("errore read");
+      exit(1);
+  }
+  key = *buff;
+  // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
+
+  printf("chiave = %d\n", key); // test
+  free(buff);
+  return key;
 }
 
 ssize_t FullWrite(int fd, const void *buf, size_t count)
@@ -233,7 +232,7 @@ int main(int argc, char **argv){
             }
             else 
             { //SE SONO IL PADRE
-                close ( conn_fd );
+                close (connectFD);
             }
 
 
