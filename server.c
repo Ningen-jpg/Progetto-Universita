@@ -139,22 +139,22 @@ int main(int argc, char **argv)
     int i, j;
 
     char** matrice = (char**)calloc(10, sizeof(char*));
-    for (int i = 0; i < 10; i++) 
-        matrice[i] = (char*)calloc(10, sizeof(char));
+    for (i = 0; i < 10; i++) 
+        matrice[i] = (char*)calloc(1024, sizeof(char));
 
-    while(fgets(buffer, sizeof(buffer), esami))
+    while (fgets(buffer, sizeof(buffer), esami))
     {
-       // printf("%s\n",buffer);
-        data = strtok(buffer,",");
+        printf("Buffer: %s\n", buffer); // Debug
+        data = strtok(buffer, ",");
         int chiave = atoi(data);
-        if(chiave == key)
+        if (chiave == key)
         {
-            strcpy(matrice[i],buffer);
+            printf("Copying buffer to matrice[%d]\n", i); // Debug
+            strcpy(matrice[i], buffer);
             puts(matrice[i]);
             i++;
         }
-        
-        printf("\n");
+        printf("i: %d\n", i); // Debug
     }
 
     fclose(esami);
