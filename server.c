@@ -136,27 +136,32 @@ int main(int argc, char **argv)
     printf("inizia il while qui\n");
 
     //inizializziamo matrice
-    int i, j;
+    int i=0;
 
     char** matrice = (char**)calloc(10, sizeof(char*));
-    for (i = 0; i < 10; i++) 
-        matrice[i] = (char*)calloc(1024, sizeof(char));
+    for (int j = 0; j < 10; j++) 
+        matrice[j] = (char*)calloc(1024, sizeof(char));
 
+    int c=0;
     while (fgets(buffer, sizeof(buffer), esami))
     {
-        printf("Buffer: %s\n", buffer); // Debug
         data = strtok(buffer, ",");
         int chiave = atoi(data);
         if (chiave == key)
         {
-            printf("Copying buffer to matrice[%d]\n", i); // Debug
-            strcpy(matrice[i], buffer);
-            puts(matrice[i]);
-            i++;
+            printf("Copio la tupla nella %d riga della matrice\n", i + 1); // Debug
+            strcpy(matrice[i++], buffer);
+            printf("Tupla copiata\n");
+            c++;
         }
-        printf("i: %d\n", i); // Debug
     }
-
+    printf("Tuple trovate:\n");
+    for (i = 0; i < c; i++) {
+        printf("%s\n", matrice[i]);
+    }
+    for (i = 0; i < c; i++){
+        free(matrice[i]);
+    }
     fclose(esami);
     free(matrice);
     printf("\n==============================\n");
