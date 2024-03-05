@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
-
+#include <errno.h>
 /*void ricerca_esami(){
     char corso[20];
     printf("Per quale corso vuoi ricercare: ");
@@ -124,7 +124,7 @@ int main(int argc, char **argv){
       {
         int fd = creaSocket(argc, argv);
         sendScelta(fd,scelta);
-        sendID (fd,argc, argv,scelta);
+        sendID (fd,argc,argv);
       } break;
       
       case 2: 
