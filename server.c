@@ -137,9 +137,10 @@ int main(int argc, char **argv)
 
     //inizializziamo matrice
     int i=0;
+    int j;
 
     char** matrice = (char**)calloc(10, sizeof(char*));
-    for (int j = 0; j < 10; j++) 
+    for (j = 0; j < 10; j++) 
         matrice[j] = (char*)calloc(1024, sizeof(char));
 
     int c=0;
@@ -156,12 +157,12 @@ int main(int argc, char **argv)
         }
     }
     printf("Tuple trovate:\n");
-    for (i = 0; i < c; i++) {
-        printf("%s\n", matrice[i]);
-    }
-    for (i = 0; i < c; i++){
+    for (i = 0; i < c; i++)
+            printf("%s\n", matrice[i]);
+            
+    for (i = 0; i < c; i++)
         free(matrice[i]);
-    }
+
     fclose(esami);
     free(matrice);
     printf("\n==============================\n");
