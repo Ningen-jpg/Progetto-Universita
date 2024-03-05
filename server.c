@@ -138,7 +138,7 @@ int main(int argc, char **argv)
     //inizializziamo matrice
     int i=0;
     int j;
-
+    char * array = (char *) calloc(1024, sizeof(char* ));
     char** matrice = (char**)calloc(10, sizeof(char*));
     for (j = 0; j < 10; j++) 
         matrice[j] = (char*)calloc(1024, sizeof(char));
@@ -153,6 +153,7 @@ int main(int argc, char **argv)
             printf("Copio la tupla nella %d riga della matrice\n", i + 1); // Debug
             strcpy(matrice[i++], buffer);
             printf("Tupla copiata\n");
+            strcpy(array[++ultimaposizione ],"\n");
             c++;
         }
     }
