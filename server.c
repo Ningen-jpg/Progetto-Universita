@@ -137,34 +137,33 @@ int main(int argc, char **argv)
 
     //inizializziamo matrice
     int i=0;
-    int j;
-    char * array = (char *) calloc(1024, sizeof(char* ));
-    char** matrice = (char**)calloc(10, sizeof(char*));
-    for (j = 0; j < 10; j++) 
-        matrice[j] = (char*)calloc(1024, sizeof(char));
+    int count=0;
+    int chiave;
+    char **matrice = (char **)calloc(10,sizeof(char *));
+    for (i = 0; i < 10; i++) {
+        matrice[i] = (char *)calloc(10, sizeof(char));
 
-    int c=0;
     while (fgets(buffer, sizeof(buffer), esami))
     {
-        data = strtok(buffer, ",");
-        int chiave = atoi(data);
+        chiave = atoi(strtok(buffer,","));
         if (chiave == key)
-        {
-            printf("Copio la tupla nella %d riga della matrice\n", i + 1); // Debug
-            strcpy(matrice[i++], buffer);
-            printf("Tupla copiata\n");
-            strcpy(array[++ultimaposizione ],"\n");
-            c++;
+        { 
+            strcpy(matrice[count],buffer);
+            count ++;
         }
     }
-    printf("Tuple trovate:\n");
-    for (i = 0; i < c; i++)
-            printf("%s\n", matrice[i]);
-            
-    for (i = 0; i < c; i++)
-        free(matrice[i]);
 
+    printf("Tuple trovate con ID %d:\n", chiave);
+    for (int i = 0; i < count; i++) {
+        printf("%s", matrice[i]);
+    }
+    
+    for (int i = 0; i < count; i++) {
+        free(matrice[i]);
+    }
+    
     fclose(esami);
     free(matrice);
     printf("\n==============================\n");
 } 
+}
