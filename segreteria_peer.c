@@ -32,7 +32,7 @@ ssize_t FullRead(int fd, void *buf, size_t count)
      if( (nread=read(fd, buf, nleft))<0)
      {
        //se c'è stato errore
-       if(errno=EINTR){ continue; }
+       if(errno==EINTR){ continue; }
        else{exit(nread);}
      }else if(nread==0){ break;}//chiuso il canale
 
