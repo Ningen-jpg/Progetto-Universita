@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     char **matrice = (char **)calloc(10,sizeof(char *));
     for (i = 0; i < 10; i++) {
         matrice[i] = (char *)calloc(1024, sizeof(char));
-
+    }
         while (fgets(buffer, sizeof(buffer), esami))
         {
             char buff_temp[1024];
@@ -171,5 +171,4 @@ int main(int argc, char **argv)
         fclose(esami);
         free(matrice);
         printf("\n==============================\n");
-    } 
 }
