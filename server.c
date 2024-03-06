@@ -67,7 +67,7 @@ ssize_t FullWrite(int fd, const void *buf, size_t count)
 
 	return (nleft);
 }
-int get_key()
+int get_key(int * connectFD)
 {
     int listenFD;
     struct sockaddr_in server;
@@ -91,11 +91,12 @@ int get_key()
     perror("listen");
     exit(1);
     }
+    printf("connessione in corso..\n");
 
-    int connectFD;
     int key;
-    connectFD=accept(listenFD, NULL, NULL);
-    FullRead(connectFD,&key,sizeof(key));
+    *connectFD=accept(listenFD, NULL, NULL);
+    FullRead(*connectFD,&key,sizeof(key));
+    printf("il fd e : %d\n", *connectFD);
 
     return key;
 
@@ -104,6 +105,7 @@ int get_key()
 int main(int argc, char **argv)
 { 
     char buffer[1024];
+    int serverfd;
     char * data;
     printf("\n==============================\n");
     FILE * esami = fopen("esami.csv", "r");
@@ -132,8 +134,7 @@ int main(int argc, char **argv)
     data =  strtok(NULL,",");
     printf("%s\n",data);
     */
-    //int key = get_key();
-    int key = 1001;
+    int key = get_key(&serverfd);
     printf("inizia il while qui\n");
 
     //inizializziamo matrice

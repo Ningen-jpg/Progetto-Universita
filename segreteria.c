@@ -149,7 +149,7 @@ int main(int argc, char **argv)
   int iid=manage_exams(connfd,listenfd,server);
   printf("%d",iid);
   /////////////////////////////////////////////////////
-  /*int scelta;
+  int scelta;
   while (1)
   {
     printf("Selezionare 1 per mandare nuovo esame a server\n inserire 2 per rimanere in attesa");
@@ -168,10 +168,9 @@ int main(int argc, char **argv)
 
       default: 
         printf("errore: scelta errrata\n");
-        break;
     }
 
-  }*/
+  }
 
 }
 
