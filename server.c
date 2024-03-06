@@ -100,6 +100,7 @@ int get_key()
     return key;
 
 }
+
 int main(int argc, char **argv)
 { 
     char buffer[1024];
@@ -137,33 +138,38 @@ int main(int argc, char **argv)
 
     //inizializziamo matrice
     int i=0;
-    int count=0;
-    int chiave;
+    int count=0; //per scorrere le righe della matrice
+    int chiave; //per ottenere il valore intero con atoi
     char **matrice = (char **)calloc(10,sizeof(char *));
     for (i = 0; i < 10; i++) {
-        matrice[i] = (char *)calloc(10, sizeof(char));
+        matrice[i] = (char *)calloc(1024, sizeof(char));
 
-    while (fgets(buffer, sizeof(buffer), esami))
-    {
-        chiave = atoi(strtok(buffer,","));
-        if (chiave == key)
-        { 
-            strcpy(matrice[count],buffer);
-            count ++;
+        while (fgets(buffer, sizeof(buffer), esami))
+        {
+            char buff_temp[1024];
+            strcpy(buff_temp,buffer);
+            
+            chiave = atoi(strtok(buffer, ","));
+            if (chiave == key)
+            {
+                strcpy(matrice[count], buff_temp);
+                printf("Stampo la matrice: %s\n", matrice[count++]);
+            }
         }
-    }
 
-    printf("Tuple trovate con ID %d:\n", chiave);
-    for (int i = 0; i < count; i++) {
-        printf("%s", matrice[i]);
-    }
-    
-    for (int i = 0; i < count; i++) {
-        free(matrice[i]);
-    }
-    
-    fclose(esami);
-    free(matrice);
-    printf("\n==============================\n");
-} 
+        printf("Tuple trovate con ID %d:\n", chiave);
+        for (int i = 0; i < count; i++)
+        {
+            printf("%s", matrice[i]);
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            free(matrice[i]);
+        }
+
+        fclose(esami);
+        free(matrice);
+        printf("\n==============================\n");
+    } 
 }
