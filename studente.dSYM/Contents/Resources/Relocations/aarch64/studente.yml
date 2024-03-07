@@ -1,0 +1,12 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/domenicomerola/Documents/Progetto Reti/Progetto-Universita/studente'
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _FullWrite, symObjAddr: 0x0, symBinAddr: 0x1000039B4, symSize: 0xB8 }
+  - { offsetInCU: 0x70, offset: 0x70, size: 0x8, addend: 0x0, symName: _FullWrite, symObjAddr: 0x0, symBinAddr: 0x1000039B4, symSize: 0xB8 }
+  - { offsetInCU: 0xD0, offset: 0xD0, size: 0x8, addend: 0x0, symName: _creaSocket, symObjAddr: 0xB8, symBinAddr: 0x100003A6C, symSize: 0x198 }
+  - { offsetInCU: 0x122, offset: 0x122, size: 0x8, addend: 0x0, symName: _sendID, symObjAddr: 0x250, symBinAddr: 0x100003C04, symSize: 0x8C }
+  - { offsetInCU: 0x170, offset: 0x170, size: 0x8, addend: 0x0, symName: _sendScelta, symObjAddr: 0x2DC, symBinAddr: 0x100003C90, symSize: 0x54 }
+  - { offsetInCU: 0x1A2, offset: 0x1A2, size: 0x8, addend: 0x0, symName: _richiesta_prenotazione, symObjAddr: 0x330, symBinAddr: 0x100003CE4, symSize: 0x4 }
+  - { offsetInCU: 0x1B7, offset: 0x1B7, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x334, symBinAddr: 0x100003CE8, symSize: 0xC0 }
+...

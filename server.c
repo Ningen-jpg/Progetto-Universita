@@ -20,53 +20,7 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-ssize_t FullRead(int fd, void *buf, size_t count) 
-{
-   size_t nleft;
-   ssize_t nread;
-   nleft = count;
-   while (nleft > 0)
-   {
-     if( (nread=read(fd, buf, nleft))<0)
-     {
-       //se c'è stato errore
-       if(errno == EINTR){ continue; }
-       else{exit(nread);}
-     }else if(nread==0){ break;}//chiuso il canale
 
-
-     nleft-=nread;
-     buf+=nread;
-   }
-     buf=0;
-     return (nleft);
-}
-
-ssize_t FullWrite(int fd, const void *buf, size_t count)
-{
-	size_t nleft;
-	ssize_t nwritten;
-	nleft = count;
-	while (nleft > 0) {
-
-	/* repeat until no left */
-	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
-		continue;
-		/* repeat the loop */
-		} else {
-		exit(nwritten); /* otherwise exit with error */
-		}
-	}
-
-	nleft -= nwritten;
-	/* set left to write */
-	buf +=nwritten;
-	/* set pointer */
-	}
-
-	return (nleft);
-}
 int get_key(int * connectFD)
 {
     int listenFD;
@@ -95,8 +49,9 @@ int get_key(int * connectFD)
 
     int key;
     *connectFD=accept(listenFD, NULL, NULL);
-    FullRead(*connectFD,&key,sizeof(key));
-    printf("il fd e : %d\n", *connectFD);
+   // printf("ho accettato con accept\n");
+    read(*connectFD,&key,sizeof(key));
+    //printf("il fd e : %d\n", connectFD);
 
     return key;
 }
@@ -106,7 +61,7 @@ int main(int argc, char **argv)
     char buffer[1024];
     int serverfd;
     char * data;
-    int * connectFD;
+    int connectFD;
     printf("\n==============================\n");
     FILE * esami = fopen("esami.csv", "r");
     if (esami == NULL)
@@ -120,21 +75,7 @@ int main(int argc, char **argv)
     fgets(buffer, sizeof(buffer), esami);
     printf("%s\n", buffer);
 
-    //passiamo i campi individuali
-    /*
-    data = strtok(buffer,",");
-    printf("%s\n", data);
-
-    data = strtok(NULL,",");
-    printf("%s\n",data);
-
-    data = strtok(NULL,",");
-    printf("%s\n",data);
-    
-    data =  strtok(NULL,",");
-    printf("%s\n",data);
-    */
-    int key = get_key(connectFD);
+    int key = get_key(&connectFD);
     printf("inizia il while qui\n");
 
     //inizializziamo matrice
@@ -154,16 +95,21 @@ int main(int argc, char **argv)
             if (chiave == key)
             {
                 strcpy(matrice[count], buff_temp);
-                printf("Stampo la matrice: %s\n", matrice[count++]);
             }
         }
 
-        printf("Tuple trovate con ID %d:\n", chiave);
+        //test
+        printf("Tuple trovate con ID %d:\n", key);
         for (int i = 0; i < count; i++)
         {
             printf("%s", matrice[i]);
         }
 
+        //invia tuple a segreteria
+        if (write(connectFD, matrice, sizeof(matrice)) != sizeof(matrice)) {
+            perror("write");
+            exit(1);
+        }
         for (int i = 0; i < count; i++)
         {
             free(matrice[i]);

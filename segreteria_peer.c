@@ -21,67 +21,22 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-ssize_t FullRead(int fd, void *buf, size_t count) 
+ int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
 {
-   size_t nleft;
-   ssize_t nread;
-   nleft = count;
-   while (nleft > 0)
-   {
-     if( (nread=read(fd, buf, nleft))<0)
-     {
-       //se c'è stato errore
-       if(errno==EINTR){ continue; }
-       else{exit(nread);}
-     }else if(nread==0){ break;}//chiuso il canale
-
-
-     nleft-=nread;
-     buf+=nread;
-   }
-     buf=0;
-     return (nleft);
-}
- int * manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
-{
-  int * buff = (int *) calloc (1,sizeof(int));
-
-  if ((FullRead(connfd, buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
+    int buff;
+  if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
   {
       perror("errore read");
       exit(1);
   }
   // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
-  printf("chiave = %d\n", *buff); // test
+  printf(" mi trovo su manage exams\n");
+  printf("chiave = %d\n", buff); // test
   return buff;
 }
 
-ssize_t FullWrite(int fd, const void *buf, size_t count)
-{
-	size_t nleft;
-	ssize_t nwritten;
-	nleft = count;
-	while (nleft > 0) {
 
-	/* repeat until no left */
-	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
-		continue;
-		/* repeat the loop */
-		} else {
-		exit(nwritten); /* otherwise exit with error */
-		}
-	}
-
-	nleft -= nwritten;
-	/* set left to write */
-	buf +=nwritten;
-	/* set pointer */
-	}
-
-	return (nleft);
-}
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
     //ora creiamo la socket che funge da client
@@ -189,20 +144,26 @@ int main(int argc, char **argv){
             }
 
             if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
-                int *choice;
+                int choice;
 
-                FullRead(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
+                read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
 
-                switch (*choice)
+                switch (choice)
                 {
                     case 1: //invia 
-                    {   //STEP:
+                    {
+                        char **tuple = (char **)calloc(10, sizeof(char *));
+                        for (i = 0; i < 10; i++)
+                        {
+                            tuple[i] = (char *)calloc(1024, sizeof(char));
+                        }
+                          //STEP:
                         //connettiamoci con server 
                         //manda id
                         //prendi buffer di tuple esami
                         //restituisci a studente co FullWrite
-                        int *chiave = manage_exams(connectFD,listenFD);
+                        int chiave = manage_exams(connectFD,listenFD);
                         
                         //ora si connette con server
                         if((socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
@@ -217,9 +178,10 @@ int main(int argc, char **argv){
                         }
                         printf("Connessione avvenuta con il Server Universitario.\n");
                         //ho inviato la chiave
-                        FullWrite(socketClientFD,chiave,sizeof(chiave));
-                        Esame * tuple = (Esame *) calloc(10,sizeof(Esame));
-                        FullRead(socketClientFD, tuple,sizeof(tuple));
+                        write(socketClientFD,&chiave,sizeof(chiave));
+                        read(socketClientFD,tuple,sizeof(tuple));
+                        write(socketClientFD,tuple,sizeof(tuple));
+                       
 
                     }
                 }

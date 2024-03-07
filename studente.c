@@ -82,16 +82,17 @@ void sendID(int fd, int argc, char **argv) {
   scanf("%d", &id);
 
   // Invia l'ID alla segreteria
-  if (FullWrite(fd, &id, sizeof(id)) != sizeof(id)) {
+  
+  if (write(fd, &id, sizeof(id)) != sizeof(id)) {
     perror("write");
     exit(1);
   }
-
   printf("ID inviato\n");
 }
 void sendScelta(int fd, int * scelta)
 {
-  if(FullWrite(fd, scelta, sizeof(scelta))  != sizeof(scelta))
+  
+  if(write(fd, scelta, sizeof(scelta))  != sizeof(scelta))
   {
     perror("Scelta non inviata\n");
     exit(1);
@@ -110,20 +111,29 @@ int main(int argc, char **argv){
 
   //switch-case da implementare per la scelta delle operazioni
  
-  int * scelta= NULL;
+  int scelta= 0;
   while (1)
   {
     printf("Selezionare 1 per ricercare se ci sono esami disponibili.\nInserire 2 per effettuare una prenotazione.\n");
-    scanf("%p", &scelta);
+    scanf("%d", &scelta);
     
 
-    switch(*scelta)
+    switch(scelta)
     {
       case 1:  //ricerca esami
       {
+        char **tuple = (char **)calloc(10, sizeof(char *));
+        for (int i = 0; i < 10; i++)
+        {
+          tuple[i] = (char *)calloc(1024, sizeof(char));
+        }
+        int * choice = calloc(1, sizeof(int));
+        *choice = scelta;
         int fd = creaSocket(argc, argv);
-        sendScelta(fd,scelta);
+        sendScelta(fd,choice);
         sendID (fd,argc,argv);
+        read(fd,tuple,sizeof(tuple));
+        printf("ho letto tuple\n");
       } break;
       
       case 2: 
