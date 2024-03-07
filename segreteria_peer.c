@@ -52,9 +52,12 @@ int *manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
       perror("errore read");
       exit(1);
   }
+  return *buff;
   // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
-  return buff;
+  printf("chiave = %d\n", key); // test
+  free(buff);
+  return key;
 }
 
 ssize_t FullWrite(int fd, const void *buf, size_t count)
