@@ -93,7 +93,7 @@ void sendScelta(int fd, int * scelta)
 {
   if(FullWrite(fd, scelta, sizeof(scelta))  != sizeof(scelta))
   {
-    perror("Scelta non mandata\n");
+    perror("Scelta non inviata\n");
     exit(1);
   }
 }
@@ -109,16 +109,15 @@ int main(int argc, char **argv){
 
 
   //switch-case da implementare per la scelta delle operazioni
-
-
-  
-  int scelta;
+ 
+  int * scelta= NULL;
   while (1)
   {
-    printf("Selezionare 1 per ricercare se ci sono esami disponibili.\nInserire 2 per effettuare una prenotazione.");
-    scanf("%d", &scelta);
+    printf("Selezionare 1 per ricercare se ci sono esami disponibili.\nInserire 2 per effettuare una prenotazione.\n");
+    scanf("%p", &scelta);
     
-    switch(scelta)
+
+    switch(*scelta)
     {
       case 1:  //ricerca esami
       {

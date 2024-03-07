@@ -106,6 +106,7 @@ int main(int argc, char **argv)
     char buffer[1024];
     int serverfd;
     char * data;
+    int * connectFD;
     printf("\n==============================\n");
     FILE * esami = fopen("esami.csv", "r");
     if (esami == NULL)
@@ -133,7 +134,7 @@ int main(int argc, char **argv)
     data =  strtok(NULL,",");
     printf("%s\n",data);
     */
-    int key = get_key();
+    int key = get_key(connectFD);
     printf("inizia il while qui\n");
 
     //inizializziamo matrice

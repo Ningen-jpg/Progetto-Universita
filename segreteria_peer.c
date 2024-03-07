@@ -21,7 +21,6 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-//test commit
 ssize_t FullRead(int fd, void *buf, size_t count) 
 {
    size_t nleft;
@@ -43,7 +42,7 @@ ssize_t FullRead(int fd, void *buf, size_t count)
      buf=0;
      return (nleft);
 }
-int * manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
+ int * manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
 {
   int * buff = (int *) calloc (1,sizeof(int));
 
@@ -52,12 +51,10 @@ int * manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
       perror("errore read");
       exit(1);
   }
-  return *buff;
   // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
-  printf("chiave = %d\n", key); // test
-  free(buff);
-  return key;
+  printf("chiave = %d\n", *buff); // test
+  return buff;
 }
 
 ssize_t FullWrite(int fd, const void *buf, size_t count)
