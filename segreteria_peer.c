@@ -43,7 +43,7 @@ ssize_t FullRead(int fd, void *buf, size_t count)
      buf=0;
      return (nleft);
 }
-int *manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
+int * manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
 {
   int * buff = (int *) calloc (1,sizeof(int));
 
