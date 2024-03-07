@@ -99,7 +99,6 @@ int get_key(int * connectFD)
     printf("il fd e : %d\n", *connectFD);
 
     return key;
-
 }
 
 int main(int argc, char **argv)
@@ -134,7 +133,11 @@ int main(int argc, char **argv)
     data =  strtok(NULL,",");
     printf("%s\n",data);
     */
+<<<<<<< HEAD
+    int key = get_key();
+=======
     int key = get_key(&serverfd);
+>>>>>>> 2e87a09f6ecc4389c8781fb9615e18ab25b6b45d
     printf("inizia il while qui\n");
 
     //inizializziamo matrice
