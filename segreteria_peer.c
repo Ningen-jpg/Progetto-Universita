@@ -21,7 +21,7 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-
+//test commit
 ssize_t FullRead(int fd, void *buf, size_t count) 
 {
    size_t nleft;
