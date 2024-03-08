@@ -154,11 +154,7 @@ int main(int argc, char **argv){
                 {
                     case 1: //invia 
                     {
-                        char **tuple = (char **)calloc(10, sizeof(char *));
-                        for (i = 0; i < 10; i++)
-                        {
-                            tuple[i] = (char *)calloc(1024, sizeof(char));
-                        }
+                        
                           //STEP:
                         //connettiamoci con server 
                         //manda id
@@ -179,11 +175,68 @@ int main(int argc, char **argv){
                         }
                         printf("Connessione avvenuta con il Server Universitario.\n");
                         //ho inviato la chiave
-                        write(socketClientFD,&chiave,sizeof(chiave));
+                        if(write(socketClientFD,&chiave,sizeof(chiave))<0)
+                        {
+                            perror("errore: non e' stata copiata la chiave");
+                            exit(1);
+                        }
                         //prende le tuple
-                        read(socketClientFD,tuple,sizeof(tuple));
-                        write(socketClientFD,tuple,sizeof(tuple));
-                       
+                        //dichiariamo num righe
+                        int righe = 0;
+                        if(read(socketClientFD,&righe, sizeof(righe))<0)
+                        {
+                            perror("read non fatta");
+                            exit(-1);
+                        }  
+                        printf("il numero di righe prese e': %d\n", righe);
+                        //allochiamo la matrice dinamica
+                        char **tuple = (char **)calloc(righe, sizeof(char *));
+                        for (i = 0; i < righe; i++)
+                        {
+                            tuple[i] = (char *)calloc(1024, sizeof(char));
+                        }
+                        
+                        printf("sto leggendo tuple da server");
+                        //leggiamo le tuple da server
+                        for(int i = 0; i< righe ;  i++)
+                        {
+                            if(read(socketClientFD, &tuple[i],1024)<0)
+                            {
+                                perror("errore: non è stata copiata una tupla\n");
+                                exit(1);
+                            }
+
+                        }
+
+                        //test per vedere se le tuple sono integre
+                        printf("STAMPO LE TUPLE SU SEGRETERIA\n");
+                        for (int i = 0; i < righe; i++)
+                        {
+                            printf("%s\n", tuple[i]);
+                        }
+
+                        printf("sto mandando num righe a studente\n");
+                        //invio num righe a studente
+                        if(write(connectFD, &righe,sizeof(righe))<0)
+                        {
+                            perror("errore: num righe non inviato\n");
+                            exit(1);
+                        }
+
+                        printf("=========================\n");
+                        printf("sto mandando le tuple a studente...\n");
+
+                        //mando le tuple, riga per riga a studente
+                        for(int i = 0; i < righe; i++)
+                        {
+                            if(write(connectFD,tuple[i],strlen(tuple[i])+1)<0)
+                            {
+                                perror("errore: non è stata inviata una tupla\n");
+                                exit(1);
+                            }
+
+                        }
+                      
 
                     }
                 }

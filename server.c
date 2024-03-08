@@ -95,6 +95,7 @@ int main(int argc, char **argv)
             if (chiave == key)
             {
                 strcpy(matrice[count], buff_temp);
+                count++;
             }
         }
 
@@ -105,6 +106,15 @@ int main(int argc, char **argv)
             printf("%s", matrice[i]);
         }
 
+        printf("sto inviando num righe\n");
+        //invia num righe
+        if(write(connectFD, &count, sizeof(int))<0)
+        {
+            perror("errore, non sono state inviate il num di righe\n");
+            exit(1);
+        }
+
+        printf("sto inviando le tuple..\n");
         //invia tuple a segreteria
         for (int i = 0; i < count; i++){
             if (write(connectFD, matrice, strlen(matrice[i])+1)< 0) {

@@ -122,18 +122,50 @@ int main(int argc, char **argv){
     {
       case 1:  //ricerca esami
       {
-        char **tuple = (char **)calloc(10, sizeof(char *));
-        for (int i = 0; i < 10; i++)
-        {
-          tuple[i] = (char *)calloc(1024, sizeof(char));
-        }
+        
+        
         int * choice = calloc(1, sizeof(int));
         *choice = scelta;
         int fd = creaSocket(argc, argv);
         sendScelta(fd,choice);
         sendID (fd,argc,argv);
-        read(fd,tuple,sizeof(tuple));
+        int num_righe;
+
+        printf("sto per leggere il numero di righe..\n");
+        if(read(fd,&num_righe,sizeof(num_righe))<0)
+        {
+          perror("errore: non è stato ricevuto il numero di righe\n");
+          exit(1);
+        }
+
+        //alloco la matrice con num_righe
+        char **tuple = (char **)calloc(num_righe, sizeof(char *));
+        for (int i = 0; i < num_righe; i++)
+        {
+          tuple[i] = (char *)calloc(1024, sizeof(char));
+        }
+
+        printf("==================\n");
+
+        printf("sto per leggere le tuple una ad una...\n");
+        for(int i= 0; i < num_righe; i++)
+        {
+          if(read(fd,&tuple[i],1024)<0)
+          {
+            perror("errore: non sono state lette le tuple\n");
+            exit(1);
+          }
+        }
+
         printf("ho letto tuple\n");
+        printf("\n ==================\n");
+
+        for(int i = 0; i< num_righe; i++)
+        {
+          printf("%s\n",tuple[i]);
+        }
+
+        
       } break;
       
       case 2: 
