@@ -7,66 +7,63 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
-typedef struct
+typedef struct 
 {
-    unsigned int day; // 27-03-2020 la function atoi cambia la stringa in int
+    unsigned int day;       //27-03-2020 la function atoi cambia la stringa in int
     unsigned int month;
-    unsigned int year;
-} Date;
-typedef struct
-{
-    int ID;
-    char nome[20];
-    Date data;
-    int numero_prenotati;
-} Esame;
+    unsigned int year;    
+}Date;
+typedef struct{
+   int ID;
+   char nome[20];
+   Date data;
+   int numero_prenotati;
+}Esame;
 
-int get_key(int *connectFD)
+
+int get_key(int * connectFD)
 {
     int listenFD;
     struct sockaddr_in server;
 
-    // creiamo la socket
-    if ((listenFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        perror("socket");
-        exit(1);
+    //creiamo la socket
+     if ( ( listenFD = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
+    perror("socket");
+    exit(1);
     }
-    server.sin_family = AF_INET;
-    server.sin_port = htons(1025); // 1025 porta server
+    server.sin_family      = AF_INET;
+    server.sin_port        = htons(1025); //1025 porta server
     server.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(listenFD, (struct sockaddr *)&server, sizeof(server)) < 0)
-    {
-        perror("bind");
-        exit(1);
+    if ( bind(listenFD, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
+    perror("bind");
+    exit(1);
     }
 
-    // connessione con segreteria
-    if (listen(listenFD, 1024) < 0)
-    {
-        perror("listen");
-        exit(1);
+    //connessione con segreteria
+    if ( listen(listenFD, 1024) < 0 ) {
+    perror("listen");
+    exit(1);
     }
     printf("connessione in corso..\n");
 
     int key;
-    *connectFD = accept(listenFD, NULL, NULL);
-    // printf("ho accettato con accept\n");
-    read(*connectFD, &key, sizeof(key));
-    // printf("il fd e : %d\n", connectFD);
+    *connectFD=accept(listenFD, NULL, NULL);
+   // printf("ho accettato con accept\n");
+    read(*connectFD,&key,sizeof(key));
+    //printf("il fd e : %d\n", connectFD);
 
     return key;
 }
 
 int main(int argc, char **argv)
-{
+{ 
     char buffer[1024];
     int serverfd;
-    char *data;
+    char * data;
     int connectFD;
     printf("\n==============================\n");
-    FILE *esami = fopen("esami.csv", "r");
+    FILE * esami = fopen("esami.csv", "r");
     if (esami == NULL)
     {
         printf("Error: Could not open the file\n");
@@ -74,67 +71,53 @@ int main(int argc, char **argv)
     }
     printf("File opened\n");
 
-    // leggiamo la prima riga
+    //leggiamo la prima riga
     fgets(buffer, sizeof(buffer), esami);
     printf("%s\n", buffer);
 
     int key = get_key(&connectFD);
-    printf("inizia il while qui\n"); // debug 
+    printf("inizia il while qui\n");
 
-    // inizializziamo matrice
-    int i = 0;
-    int count = 0; // per scorrere le righe della matrice
-    int chiave;    // per ottenere il valore intero con atoi
-
-    char **matrice = (char **)calloc(10, sizeof(char *));
-    for (i = 0; i < 10; i++)
-    {
+    //inizializziamo matrice
+    int i=0;
+    int count=0; //per scorrere le righe della matrice
+    int chiave; //per ottenere il valore intero con atoi
+    char **matrice = (char **)calloc(10,sizeof(char *));
+    for (i = 0; i < 10; i++) {
         matrice[i] = (char *)calloc(1024, sizeof(char));
     }
-
-    while (fgets(buffer, sizeof(buffer), esami))
-    {
-        char buff_temp[1024];
-        strcpy(buff_temp, buffer);
-
-        chiave = atoi(strtok(buffer, ","));
-        if (chiave == key)
+        while (fgets(buffer, sizeof(buffer), esami))
         {
-            strcpy(matrice[count], buff_temp);
-            count ++;
+            char buff_temp[1024];
+            strcpy(buff_temp,buffer);
+            
+            chiave = atoi(strtok(buffer, ","));
+            if (chiave == key)
+            {
+                strcpy(matrice[count], buff_temp);
+            }
         }
-    }
 
-    // test
-    printf("Tuple trovate con ID %d:\n", key);
-    for (i = 0; i < count; i++)
-    {
-        printf("%s\n", matrice[i]);
-    }
-
-    // invio num di righe
-    if (write(connectFD, &count, sizeof(int)) < 0)
-    {
-        perror("errore write per l'invio del numero di righe");
-        exit(1);
-    }
-
-    // invia tuple a segreteria
-    for (int i = 0; i < count; i++)
-    {
-        if (write(connectFD, matrice[i], strlen(matrice[i]) + 1) < 0)
+        //test
+        printf("Tuple trovate con ID %d:\n", key);
+        for (int i = 0; i < count; i++)
         {
-            perror("errore write per l'invio delle tuple");
-            exit(1);
+            printf("%s", matrice[i]);
         }
-    }
-    
-    for (int i = 0; i < count; i++)
-    {
-        free(matrice[i]);
-    }
 
-    fclose(esami);
-    free(matrice);
-    printf("\n==============================\n");
+        //invia tuple a segreteria
+        for (int i = 0; i < count; i++){
+            if (write(connectFD, matrice, strlen(matrice[i])+1)< 0) {
+                perror("write");
+                exit(1);
+            }
+        }
+        for (int i = 0; i < count; i++)
+        {
+            free(matrice[i]);
+        }
+
+        fclose(esami);
+        free(matrice);
+        printf("\n==============================\n");
 }
