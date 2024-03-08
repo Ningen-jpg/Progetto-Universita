@@ -79,12 +79,13 @@ int main(int argc, char **argv)
     printf("%s\n", buffer);
 
     int key = get_key(&connectFD);
-    printf("inizia il while qui\n");
+    printf("inizia il while qui\n"); // debug 
 
     // inizializziamo matrice
     int i = 0;
     int count = 0; // per scorrere le righe della matrice
     int chiave;    // per ottenere il valore intero con atoi
+
     char **matrice = (char **)calloc(10, sizeof(char *));
     for (i = 0; i < 10; i++)
     {
@@ -106,15 +107,15 @@ int main(int argc, char **argv)
 
     // test
     printf("Tuple trovate con ID %d:\n", key);
-    for (int i = 0; i < count; i++)
+    for (i = 0; i < count; i++)
     {
-        printf("%s", matrice[i]);
+        printf("%s\n", matrice[i]);
     }
 
     // invio num di righe
     if (write(connectFD, &count, sizeof(int)) < 0)
     {
-        perror("write");
+        perror("errore write per l'invio del numero di righe");
         exit(1);
     }
 
@@ -123,7 +124,7 @@ int main(int argc, char **argv)
     {
         if (write(connectFD, matrice[i], strlen(matrice[i]) + 1) < 0)
         {
-            perror("write");
+            perror("errore write per l'invio delle tuple");
             exit(1);
         }
     }

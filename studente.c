@@ -96,9 +96,12 @@ int main(int argc, char **argv)
     {
       int *choice = calloc(1, sizeof(int));
       *choice = scelta;
+
       int fd = creaSocket(argc, argv);
+
       sendScelta(fd, choice);
       sendID(fd, argc, argv);
+      
       int righe = 0;
       // numero di righe matrice
       read(fd, &righe, sizeof(righe));
@@ -116,7 +119,7 @@ int main(int argc, char **argv)
           exit(1);
         }
       }
-      //read(fd, tuple, sizeof(tuple));
+      
       //stampo a video gli esami trovati, se c'e ne sono
       printf("Tuple esami\n");
       for (int i = 0; i < righe; i++)

@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <string.h>
 
 typedef struct
 {
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
     int pid;
     struct sockaddr_in server_addr, client_addr;
     char readBuf[1024], writeBuf[1024];
-    // da decommentare
+    // la riga in basso è da decommentare e và sistemata
     // if(argc<3){fprintf(stderr, "Si utilizza cosi': ./peer <porta su cui vuoi offrire il servizio> <porta su cui vuoi eventualmente chiedere il servizio>\n\nES: ./peer 4000 2500\n"); exit(-1);}
 
     //--------- CREO LA SOCKET per far fungere come SERVER (per connettermi con studente)
@@ -191,12 +192,15 @@ int main(int argc, char **argv)
                     int righe = 0;
                     // numero di righe matrice
                     read(socketClientFD, &righe, sizeof(righe));
+
+                    // alloco la matrice 
                     char **tuple = (char **)calloc(righe, sizeof(char *));
                     for (int i = 0; i < righe; i++)
                     {
                         tuple[i] = (char *)calloc(1024, sizeof(char));
                     }
-                    // tuple
+                    
+                    // leggo le tuple (se c'e ne sono) in arrivo da server
                     for (int i = 0; i < righe; i++)
                     {
                         if (read(socketClientFD, tuple[i], 1024) < 0)
@@ -205,13 +209,15 @@ int main(int argc, char **argv)
                             exit(1);
                         }
                     }
-                    // invio num di righe
+
+                    // invio il num di righe a studente
                     if (write(connectFD, &righe, sizeof(int)) < 0)
                     {
                         perror("write");
                         exit(1);
                     }
-                    // invio le tuple a studente
+                    
+                    // invio le tuple una alla volta a studente
                     for (int i = 0; i < righe; i++)
                     {
                         if (write(connectFD, tuple[i], strlen(tuple[i]) + 1) < 0)
