@@ -21,7 +21,7 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
- int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE
+ int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
     int buff;
   if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
@@ -159,7 +159,7 @@ int main(int argc, char **argv){
                         //connettiamoci con server 
                         //manda id
                         //prendi buffer di tuple esami
-                        //restituisci a studente co FullWrite
+                        //restituisci a studente con Write
                         int chiave = manage_exams(connectFD,listenFD);
                         
                         //ora si connette con server
@@ -187,7 +187,7 @@ int main(int argc, char **argv){
                         {
                             perror("read non fatta");
                             exit(-1);
-                        }  
+                        }
                         printf("il numero di righe prese e': %d\n", righe);
                         //allochiamo la matrice dinamica
                         char **tuple = (char **)calloc(righe, sizeof(char *));
@@ -208,7 +208,7 @@ int main(int argc, char **argv){
 
                         }
 
-                        //test per vedere se le tuple sono integre
+                        //test NOSTRO per vedere se le tuple sono integre
                         printf("STAMPO LE TUPLE SU SEGRETERIA\n");
                         for (int i = 0; i < righe; i++)
                         {
