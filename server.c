@@ -122,6 +122,8 @@ int main(int argc, char **argv)
                 exit(1);
             }
         }
+
+        printf("FORSE ho inviato le tuple\n");
         for (int i = 0; i < count; i++)
         {
             free(matrice[i]);
