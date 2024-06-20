@@ -116,19 +116,41 @@ int main(int argc, char **argv)
 
         printf("sto inviando le tuple..\n");
         //invia tuple a segreteria
-        for (int i = 0; i < count; i++){
-            if (write(connectFD, matrice, strlen(matrice[i])+1)< 0) {
+
+        printf("la prima tupla è: %s\n", matrice[0]);
+        //test per vedere se invia anche una sola riga
+        printf("size della prima tupla: %lu\n", strlen(matrice[0]));
+
+            int bytesc =0;
+            matrice[0][strlen(matrice[0])+1] = '\0';
+            if ((bytesc= write(connectFD, matrice[0], 1025))< 0) {
                 perror("write");
                 exit(1);
             }
-        }
+            printf("byte scritti: %d\n",bytesc);
+        
+        //test
+        //check del size di matrice[i]
+        /*
+        for (int i = 0; i < count; i++){
+            printf("sto per scrivere la seguente riga: %s\n",matrice[i]);
+            matrice[i][strlen(matrice[i])+1]= '\0';
+            if (write(connectFD, matrice[i], strlen(matrice[i])+1)< 0) {
+                perror("write");
+                exit(1);
+            }
+            printf("il size di matrice[i]+1 e: %lu\n",strlen(matrice[i]+1));
 
+        }
+        */
+
+       
         printf("FORSE ho inviato le tuple\n");
         for (int i = 0; i < count; i++)
         {
             free(matrice[i]);
         }
-
+        
         fclose(esami);
         free(matrice);
         printf("\n==============================\n");

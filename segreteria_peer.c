@@ -193,30 +193,48 @@ int main(int argc, char **argv){
                         char **tuple = (char **)calloc(righe, sizeof(char *));
                         for (i = 0; i < righe; i++)
                         {
-                            tuple[i] = (char *)calloc(1024, sizeof(char));
+                            tuple[i] = (char *)calloc(1025, sizeof(char));
                         }
                         
-                        printf("sto leggendo tuple da server");
+                        printf("sto leggendo tuple da server\n");
                         //leggiamo le tuple da server
-                        for(int i = 0; i< righe ;  i++)
-                        {
-                            if(read(socketClientFD, &tuple[i],1024)<0)
+
+                        //test per vedere se anche una sola riga viene inviata
+                        int read_value = 0;
+                        
+                            if((read_value = read(socketClientFD, &tuple[0],1025))<0)
                             {
                                 perror("errore: non è stata copiata una tupla\n");
                                 exit(1);
                             }
+                            printf("read_value: %d\n", read_value);
+
+                        
+                        /*
+                        for(int i = 0; i< righe ;  i++)
+                        {
+                            if( (read_value =read(socketClientFD, &tuple[i],1024))<0)
+                            {
+                                perror("errore: non è stata copiata una tupla\n");
+                                exit(1);
+                            }
+                            printf("read_value: %d\n",read_value);
 
                         }
-
+                        */
                         //test NOSTRO per vedere se le tuple sono integre
+                        /*
                         printf("STAMPO LE TUPLE SU SEGRETERIA\n");
                         for (int i = 0; i < righe; i++)
                         {
                             printf("%s\n", tuple[i]);
                         }
+                        */
+                              printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
 
+
+                        //test makefile
                         printf("sto mandando num righe a studente\n");
-                        //invio num righe a studente
                         if(write(connectFD, &righe,sizeof(righe))<0)
                         {
                             perror("errore: num righe non inviato\n");
