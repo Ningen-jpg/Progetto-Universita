@@ -21,4 +21,4 @@ studenteExe: studente
 
 clean: 
 	@echo "Sto pulendo..."
-	rm studente
+	rm studente peer server
