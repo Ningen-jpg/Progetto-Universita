@@ -20,31 +20,32 @@
 }*/
 
 //la close del socket và fatta solo una volta che a studente vengono inviati i dati (le date di esame) che stava cercando
-ssize_t FullWrite(int fd, const void *buf, size_t count)
+/*ssize_t FullWrite(int fd, const void *buf, size_t count)
 {
 	size_t nleft;
 	ssize_t nwritten;
 	nleft = count;
 	while (nleft > 0) {
 
-	/* repeat until no left */
+	// repeat until no left 
 	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
+		if (errno == EINTR) { // if interrupted by system call 
 		continue;
-		/* repeat the loop */
+		// repeat the loop 
 		} else {
-		exit(nwritten); /* otherwise exit with error */
+		exit(nwritten); // otherwise exit with error 
 		}
 	}
 
 	nleft -= nwritten;
-	/* set left to write */
+	// set left to write 
 	buf +=nwritten;
-	/* set pointer */
+	// set pointer 
 	}
 
 	return (nleft);
-}
+}*/
+
 int creaSocket(int argc, char ** argv)
 {
   int sockfd;
