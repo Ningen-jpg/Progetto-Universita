@@ -21,10 +21,10 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
- int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
+ char* manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
-    int buff;
-  if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
+    static char buff[1024];
+  if ((read(connfd, buff, sizeof(buff))) < 0) // legge la chiave da cercare (mandata da studente)
   {
       perror("errore read");
       exit(1);
@@ -32,7 +32,7 @@ typedef struct{
   // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
   printf(" mi trovo su manage exams\n");
-  printf("chiave = %d\n", buff); // test
+  printf("chiave = %s\n", buff); // test
   return buff;
 }
 
@@ -144,13 +144,13 @@ int main(int argc, char **argv){
             }
 
             if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
-                int choice;
+                char choice[1024];
 
-                read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
+                read(connectFD,choice, sizeof(choice)); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
 
-            
-                switch (choice)
+                int scelta = atoi(choice);
+                switch (scelta)
                 {
                     case 1: //invia 
                     {
@@ -160,7 +160,7 @@ int main(int argc, char **argv){
                         //manda id
                         //prendi buffer di tuple esami
                         //restituisci a studente con Write
-                        int chiave = manage_exams(connectFD,listenFD);
+                        int chiave = atoi(manage_exams(connectFD,listenFD));
                         
                         //ora si connette con server
                         if((socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
