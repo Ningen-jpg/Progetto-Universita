@@ -24,7 +24,7 @@ typedef struct
 
  int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
-    int buff;
+  int buff;
   if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
   {
       perror("errore read");

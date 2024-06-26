@@ -1,3 +1,4 @@
+CC = clang
 all: server segreteria studente 
 
 
