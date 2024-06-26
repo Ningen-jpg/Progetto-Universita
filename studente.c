@@ -80,6 +80,7 @@ void sendID(int fd, int argc, char **argv) {
   int id;
   printf("Inserire ID d'esame da cercare:\t");
   scanf("%d", &id);
+  printf("ID PRESO DA TASTIERA: %d\n", id);
 
   // Invia l'ID alla segreteria
   

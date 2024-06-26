@@ -82,10 +82,9 @@ int main(int argc, char **argv)
     int i=0;
     int count=0; //per scorrere le righe della matrice
     int chiave; //per ottenere il valore intero con atoi
-    char **matrice = (char **)calloc(10,sizeof(char *));
-    for (i = 0; i < 10; i++) {
-        matrice[i] = (char *)calloc(1024, sizeof(char));
-    }
+   // char **matrice = (char **)calloc(10,sizeof(char *));
+   char matrice [10][1024];
+  
         while (fgets(buffer, sizeof(buffer), esami))
         {
             char buff_temp[1024];
@@ -94,6 +93,7 @@ int main(int argc, char **argv)
             chiave = atoi(strtok(buffer, ","));
             if (chiave == key)
             {
+                printf("\n ============TEST\n============\n debug buff_temp =%s\n",buff_temp);
                 strcpy(matrice[count], buff_temp);
                 count++;
             }
@@ -146,12 +146,8 @@ int main(int argc, char **argv)
 
        
         printf("FORSE ho inviato le tuple\n");
-        for (int i = 0; i < count; i++)
-        {
-            free(matrice[i]);
-        }
+      
         
         fclose(esami);
-        free(matrice);
         printf("\n==============================\n");
 }
