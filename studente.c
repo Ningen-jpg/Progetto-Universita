@@ -139,12 +139,8 @@ int main(int argc, char **argv){
           exit(1);
         }
 
-        //alloco la matrice con num_righe
-        char **tuple = (char **)calloc(num_righe, sizeof(char *));
-        for (int i = 0; i < num_righe; i++)
-        {
-          tuple[i] = (char *)calloc(1024, sizeof(char));
-        }
+        //matrice per le eventuali tuple trovate
+        char tuple[10][1024];
 
         printf("==================\n");
 

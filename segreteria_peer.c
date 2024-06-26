@@ -199,35 +199,34 @@ int main(int argc, char **argv){
                         //test per vedere se anche una sola riga viene inviata
                         int read_value = 0;
                         
-                            if((read_value = read(socketClientFD, &tuple[0],1025))<0)
-                            {
-                                perror("errore: non è stata copiata una tupla\n");
-                                exit(1);
-                            }
-                            printf("read_value: %d\n", read_value);
+                        /*if((read_value = read(socketClientFD, &tuple[0],1025))<0)
+                        {
+                            perror("errore: non è stata copiata una tupla\n");
+                            exit(1);
+                        }
+                        printf("read_value: %d\n", read_value);*/
                         
-                        /*
+                        
                         for(int i = 0; i< righe ;  i++)
                         {
-                            if( (read_value =read(socketClientFD, &tuple[i],1024))<0)
+                            if( (read_value =read(socketClientFD, &tuple[i],sizeof(tuple[i])))<0)
                             {
                                 perror("errore: non è stata copiata una tupla\n");
                                 exit(1);
                             }
                             printf("read_value: %d\n",read_value);
-
                         }
-                        */
+                        
                         //test NOSTRO per vedere se le tuple sono integre
-                        /*
+                        
                         printf("STAMPO LE TUPLE SU SEGRETERIA\n");
                         for (int i = 0; i < righe; i++)
                         {
                             printf("%s\n", tuple[i]);
                         }
-                        */
-                              //printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
-                        printf("stringa: %s\n",tuple[0]);
+                        
+                        //printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
+                        //printf("stringa: %s\n",tuple[0]);
 
                         //test makefile
                         printf("sto mandando num righe a studente\n");
@@ -236,14 +235,7 @@ int main(int argc, char **argv){
                             perror("errore: num righe non inviato\n");
                             exit(1);
                         }
-                        int bytesc;
-                        for(int i=0;i<righe;i++)
-                        {
-                            if ((bytesc= read(connectFD, matrice[i], 1025))< 0) {
-                                perror("write");
-                                exit(1);
-                            }
-                        }
+                        
                         printf("=========================\n");
                         printf("sto mandando le tuple a studente...\n");
 
