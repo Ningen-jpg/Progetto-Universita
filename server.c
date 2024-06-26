@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
     //inizializziamo matrice
     int i=0;
-    int count=0; //per scorrere le righe della matrice
+    int count=0; //per scorrere le righe della matrice, indica anche il num di tuple trovate
     int chiave; //per ottenere il valore intero con atoi
    // char **matrice = (char **)calloc(10,sizeof(char *));
    char matrice [10][1024];
@@ -116,17 +116,25 @@ int main(int argc, char **argv)
 
         printf("sto inviando le tuple..\n");
         //invia tuple a segreteria
+        int bytesc =0;
+        for(int i=0;i<count;i++)
+        {
+            if ((bytesc= write(connectFD, matrice[i], 1025))< 0) {
+                perror("write");
+                exit(1);
+            }
+        }
 
         printf("la prima tupla è: %s\n", matrice[0]);
         //test per vedere se invia anche una sola riga
         printf("size della prima tupla: %lu\n", strlen(matrice[0]));
 
-            int bytesc =0;
-            matrice[0][strlen(matrice[0])+1] = '\0';
-            if ((bytesc= write(connectFD, matrice[0], 1025))< 0) {
+           // matrice[0][strlen(matrice[0])+1] = '\0';
+            /*if ((bytesc= write(connectFD, matrice[i], 1025))< 0) {
                 perror("write");
                 exit(1);
-            }
+            }*/
+
             printf("byte scritti: %d\n",bytesc);
         
         //test

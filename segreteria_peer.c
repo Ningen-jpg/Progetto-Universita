@@ -190,11 +190,8 @@ int main(int argc, char **argv){
                         }
                         printf("il numero di righe prese e': %d\n", righe);
                         //allochiamo la matrice dinamica
-                        char **tuple = (char **)calloc(righe, sizeof(char *));
-                        for (i = 0; i < righe; i++)
-                        {
-                            tuple[i] = (char *)calloc(1025, sizeof(char));
-                        }
+                        char tuple[10][1024];
+                        
                         
                         printf("sto leggendo tuple da server\n");
                         //leggiamo le tuple da server
@@ -208,7 +205,6 @@ int main(int argc, char **argv){
                                 exit(1);
                             }
                             printf("read_value: %d\n", read_value);
-
                         
                         /*
                         for(int i = 0; i< righe ;  i++)
@@ -230,8 +226,8 @@ int main(int argc, char **argv){
                             printf("%s\n", tuple[i]);
                         }
                         */
-                              printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
-
+                              //printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
+                        printf("stringa: %s\n",tuple[0]);
 
                         //test makefile
                         printf("sto mandando num righe a studente\n");
@@ -240,7 +236,14 @@ int main(int argc, char **argv){
                             perror("errore: num righe non inviato\n");
                             exit(1);
                         }
-
+                        int bytesc;
+                        for(int i=0;i<righe;i++)
+                        {
+                            if ((bytesc= read(connectFD, matrice[i], 1025))< 0) {
+                                perror("write");
+                                exit(1);
+                            }
+                        }
                         printf("=========================\n");
                         printf("sto mandando le tuple a studente...\n");
 
