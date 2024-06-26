@@ -22,19 +22,19 @@ typedef struct
     int numero_prenotati;
 } Esame;
 
-char *manage_exams(int connfd, int listenfd) // RICEVE CHIAVE che serve a recuperare l'esame scelto
+ int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
-    static char buff[1024];
-    if ((read(connfd, buff, sizeof(buff))) < 0) // legge la chiave da cercare (mandata da studente)
-    {
-        perror("errore read");
-        exit(1);
-    }
-    // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
+    int buff;
+  if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
+  {
+      perror("errore read");
+      exit(1);
+  }
+  // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
-    printf(" mi trovo su manage exams\n");
-    printf("chiave = %s\n", buff); // test
-    return buff;
+  printf(" mi trovo su manage exams\n");
+  printf("chiave = %d\n", buff); // test
+  return buff;
 }
 
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
@@ -161,62 +161,61 @@ int main(int argc, char **argv)
                 exit(-1);
             }
 
-            if (pid == 0)
-            { // SE SONO IL FIGLIO GESTISCO IL SERVZIO
-                char choice[1024];
+            if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
+                int choice;
 
-                read(connectFD, choice, sizeof(choice)); // connectFD è fd della connessione con studente
-                // ho letto la scelta, ora va fatto switch case
+                read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
+                //ho letto la scelta, ora va fatto switch case
 
-                int scelta = atoi(choice);
-                switch (scelta)
+            
+                switch (choice)
                 {
-                case 1: // invia
-                {
-
-                    // STEP:
-                    // connettiamoci con server
-                    // manda id
-                    // prendi buffer di tuple esami
-                    // restituisci a studente con Write
-                    int chiave = atoi(manage_exams(connectFD, listenFD));
-
-                    // ora si connette con server
-                    if ((socketClientFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                    case 1: //invia 
                     {
-                        perror("socket client");
-                        exit(-1);
-                    }
-                    if (connect(socketClientFD, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
-                    {
-                        fprintf(stderr, "Errore di connessione\n");
-                        exit(1);
-                    }
-                    printf("Connessione avvenuta con il Server Universitario.\n");
-                    // ho inviato la chiave
-                    if (write(socketClientFD, &chiave, sizeof(chiave)) < 0)
-                    {
-                        perror("errore: non e' stata copiata la chiave");
-                        exit(1);
-                    }
-                    // prende le tuple
-                    // dichiariamo num righe
-                    int righe = 0;
-                    if (read(socketClientFD, &righe, sizeof(righe)) < 0)
-                    {
-                        perror("read non fatta");
-                        exit(-1);
-                    }
-                    printf("il numero di righe prese e': %d\n", righe);
-                    // allochiamo la matrice dinamica
-                    char **tuple = (char **)calloc(righe, sizeof(char *));
-                    for (i = 0; i < righe; i++)
-                    {
-                        tuple[i] = (char *)calloc(1025, sizeof(char));
-                    }
-
-                    printf("sto leggendo tuple da server\n");
-                    // leggiamo le tuple da server
+                        
+                          //STEP:
+                        //connettiamoci con server 
+                        //manda id
+                        //prendi buffer di tuple esami
+                        //restituisci a studente con Write
+                        int chiave = manage_exams(connectFD,listenFD);
+                        
+                        //ora si connette con server
+                        if((socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
+                        {
+                            perror("socket client"); 
+                            exit(-1);
+                        }
+                        if (connect(socketClientFD, (struct sockaddr *) &client_addr, sizeof(client_addr)) < 0) 
+                        {
+                            fprintf(stderr,"Errore di connessione\n");
+                            exit(1);
+                        }
+                        printf("Connessione avvenuta con il Server Universitario.\n");
+                        //ho inviato la chiave
+                        if(write(socketClientFD,&chiave,sizeof(chiave))<0)
+                        {
+                            perror("errore: non e' stata copiata la chiave");
+                            exit(1);
+                        }
+                        //prende le tuple
+                        //dichiariamo num righe
+                        int righe = 0;
+                        if(read(socketClientFD,&righe, sizeof(righe))<0)
+                        {
+                            perror("read non fatta");
+                            exit(-1);
+                        }
+                        printf("il numero di righe prese e': %d\n", righe);
+                        //allochiamo la matrice dinamica
+                        char **tuple = (char **)calloc(righe, sizeof(char *));
+                        for (i = 0; i < righe; i++)
+                        {
+                            tuple[i] = (char *)calloc(1025, sizeof(char));
+                        }
+                        
+                        printf("sto leggendo tuple da server\n");
+                        //leggiamo le tuple da server
 
                     // test per vedere se anche una sola riga viene inviata
                     int read_value = 0;
