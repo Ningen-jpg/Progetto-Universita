@@ -41,23 +41,23 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
     //ora creiamo la socket che funge da client
 
-  client.sin_family = AF_INET;
-  client.sin_port   = htons(1025);
-  client.sin_addr.s_addr = inet_addr("127.0.0.1");
-  /*if (inet_pton(AF_INET,"127.0.0.1", &client.sin_addr) < 0) {
-      fprintf(stderr,"inet_pton error for \n");
-      exit (1);
+    client.sin_family = AF_INET;
+    client.sin_port   = htons(1025);
+    client.sin_addr.s_addr = inet_addr("127.0.0.1");
+    /*if (inet_pton(AF_INET,"127.0.0.1", &client.sin_addr) < 0) {
+        fprintf(stderr,"inet_pton error for \n");
+        exit (1);
     }
-  */
+    */
 
-  if ( bind(listenfd, (struct sockaddr *) &client, sizeof(client)) < 0 ) {
-    perror("bind");
-    exit(1);
-  }
-  if ( listen(listenfd, 1025) < 0 ) {
-    perror("listen");
-    exit(1);
-  }
+    if ( bind(listenfd, (struct sockaddr *) &client, sizeof(client)) < 0 ) {
+        perror("bind");
+        exit(1);
+    }
+    if ( listen(listenfd, 1025) < 0 ) {
+        perror("listen");
+        exit(1);
+    }
 }
 
 int main(int argc, char **argv){
@@ -66,11 +66,10 @@ int main(int argc, char **argv){
     struct sockaddr_in server_addr, client_addr;
     char readBuf[1024], writeBuf[1024];
     //da decommentare 
-   // if(argc<3){fprintf(stderr, "Si utilizza cosi': ./peer <porta su cui vuoi offrire il servizio> <porta su cui vuoi eventualmente chiedere il servizio>\n\nES: ./peer 4000 2500\n"); exit(-1);}
-
+    // if(argc<3){fprintf(stderr, "Si utilizza cosi': ./peer <porta su cui vuoi offrire il servizio> <porta su cui vuoi eventualmente chiedere il servizio>\n\nES: ./peer 4000 2500\n"); exit(-1);}
 
     //--------- CREO LA SOCKET per far fungere come SERVER (per connettermi con studente)
-    if( (listenFD=socket(AF_INET, SOCK_STREAM, 0))<0){perror("socket server"); exit(-1);}
+    if( (listenFD=socket(AF_INET, SOCK_STREAM, 0))<0){ perror("socket server"); exit(-1); }
 
     //SETTO LA SOCKET DI RICEZIONE
     server_addr.sin_family=AF_INET;
@@ -81,7 +80,6 @@ int main(int argc, char **argv){
     //BIND
     if(bind(listenFD, (struct sockaddr*)&server_addr, sizeof(server_addr))<0 ){perror("bind"); exit(-1);}
     //--------- SERVER
-
 
     //--------- CREO LA SOCKET CLIENT
     //if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0){perror("socket client"); exit(-1);}
@@ -94,13 +92,11 @@ int main(int argc, char **argv){
     if(inet_pton(AF_INET, "127.0.0.1", &client_addr.sin_addr)<0){perror("inetpton"); exit(-1);}
     //--------- CLIENT
 
-
     /*ORA MI METTO IN ASCOLTO DA SERVER, E DA CLIENT VOLTA PER VOLTA
     DECIDO DI RICHIEDERE UN SERVIZIO SE NE NECESSITO ASCOLTANDO
     LO STDIN*/
-    if(listen(listenFD, 1000) < 0){perror("listen"); exit(-1);}
+    if(listen(listenFD, 1000) < 0){ perror("listen"); exit(-1); }
     printf("--- ASCOLTO ---\n      ...\n");
-
 
     //VARIABILI PER IL MULTIPLEXING
     fd_set readSet, writeSet;
@@ -115,7 +111,6 @@ int main(int argc, char **argv){
     while(1){
 
         FD_SET(listenFD,&readSet);//SETTO IL READSET SUL FD DELLA SOCKET IN ASCOLTO
-    
         //Mi metto in ascolto di STDIN se voglio diventare client
         FD_SET(STDIN_FILENO, &readSet);
 
@@ -132,7 +127,7 @@ int main(int argc, char **argv){
         sleep(1);
 
     
-    //SE HO UN NUOVO CLIENT CONNESSO (PARTE SERVER)
+        //SE HO UN NUOVO CLIENT CONNESSO (PARTE SERVER)
         if(FD_ISSET(listenFD, &readSet)){
             printf("---|Nuovo client connesso");
             //siamo connessi con il cliente
@@ -145,17 +140,14 @@ int main(int argc, char **argv){
 
             if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
                 int choice;
-
                 read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
-
             
                 switch (choice)
                 {
                     case 1: //invia 
                     {
-                        
-                          //STEP:
+                        //STEP:
                         //connettiamoci con server 
                         //manda id
                         //prendi buffer di tuple esami
@@ -247,18 +239,15 @@ int main(int argc, char **argv){
                                 perror("errore: non è stata inviata una tupla\n");
                                 exit(1);
                             }
-
                         }
-                      
-
                     }
                 }
               
                 close(connectFD);
                 exit (-1);
             }
-            else 
-            { //SE SONO IL PADRE
+            else //SONO IL PADRE
+            { 
                 close (connectFD);
             }
 
@@ -282,8 +271,8 @@ int main(int argc, char **argv){
             fd_disponibili--;
 
             printf("Sono client\n");
-            if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0){perror("socket client"); exit(-1);}
-            if(connect(socketClientFD, (struct sockaddr*)&client_addr, sizeof(client_addr))< 0){perror("connect"); exit(-1);}//MI CONNETTO
+            if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0){ perror("socket client"); exit(-1); }
+            if(connect(socketClientFD, (struct sockaddr*)&client_addr, sizeof(client_addr))< 0){ perror("connect"); exit(-1); }//MI CONNETTO
             printf("Connesso ad un altro peer\n");
             
 	        if(read(socketClientFD, readBuf, sizeof(readBuf))>0){//LEGGO
@@ -298,8 +287,6 @@ int main(int argc, char **argv){
             printf("fine client\n");
         }
 
-        
-
         //SERVO TUTTI I CLIENT ADESSO FIN QUANDO VE NE SONO DISPONIBILI (PARTE SERVER)
         while(fd_disponibili>0 && i<FD_SETSIZE){
             i++; //INCREMENTO i PER CONTINUARE A CONTROLLARE
@@ -311,8 +298,7 @@ int main(int argc, char **argv){
             //ALTRIMENTI SERVI IL CLIENT
             if(FD_ISSET(i, &writeSet)){
                 printf("---|Servo il client connesso sulla fd %d\n...\n", i);
-                fd_disponibili--;
-                
+                fd_disponibili--; 
 
                 //OFFRO IL SERVIZIO
 
