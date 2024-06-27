@@ -20,31 +20,7 @@
 }*/
 
 //la close del socket và fatta solo una volta che a studente vengono inviati i dati (le date di esame) che stava cercando
-ssize_t FullWrite(int fd, const void *buf, size_t count)
-{
-	size_t nleft;
-	ssize_t nwritten;
-	nleft = count;
-	while (nleft > 0) {
 
-	/* repeat until no left */
-	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
-		continue;
-		/* repeat the loop */
-		} else {
-		exit(nwritten); /* otherwise exit with error */
-		}
-	}
-
-	nleft -= nwritten;
-	/* set left to write */
-	buf +=nwritten;
-	/* set pointer */
-	}
-
-	return (nleft);
-}
 int creaSocket(int argc, char ** argv)
 {
   int sockfd;
@@ -59,12 +35,15 @@ int creaSocket(int argc, char ** argv)
     fprintf(stderr,"errore creazione della socket\n");
     exit (1);
   }
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port   = htons(1024); //MI STO CONNETTENDO A SEGRETERIA
+
+  servaddr.sin_family = AF_INET;
+  servaddr.sin_port   = htons(1024); //MI STO CONNETTENDO A SEGRETERIA
+
   if (inet_pton(AF_INET, argv[1], &servaddr.sin_addr) < 0) {
     fprintf(stderr,"inet_pton error for %s\n", argv[1]);
     exit (1);
   }
+
   if (connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
     fprintf(stderr,"Errore di connessione\n");
     exit(1);
@@ -80,7 +59,6 @@ void sendID(int fd, int argc, char **argv) {
   int id;
   printf("Inserire ID d'esame da cercare:\t");
   scanf("%d", &id);
-  printf("ID PRESO DA TASTIERA: %d\n", id);
 
   // Invia l'ID alla segreteria
   
@@ -90,6 +68,7 @@ void sendID(int fd, int argc, char **argv) {
   }
   printf("ID inviato\n");
 }
+
 void sendScelta(int fd, int * scelta)
 {
   
@@ -100,25 +79,21 @@ void sendScelta(int fd, int * scelta)
   }
 }
 
-void richiesta_prenotazione(){
+void richiesta_prenotazione(){ // da implementare
 
 }
 
 
 int main(int argc, char **argv){
-
- // char buffer[INET6_ADDRSTRLEN];
-
-
-  //switch-case da implementare per la scelta delle operazioni
+  
+  // char buffer[INET6_ADDRSTRLEN];
  
   int scelta= 0;
   while (1)
   {
-    printf("Selezionare 1 per ricercare se ci sono esami disponibili.\nInserire 2 per effettuare una prenotazione.\n");
+    printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\nScegli: ");
     scanf("%d", &scelta);
     
-
     switch(scelta)
     {
       case 1:  //ricerca esami
@@ -132,7 +107,7 @@ int main(int argc, char **argv){
         sendID (fd,argc,argv);
         int num_righe;
 
-        printf("sto per leggere il numero di righe..\n");
+        //printf("sto per leggere il numero di righe..\n");
         if(read(fd,&num_righe,sizeof(num_righe))<0)
         {
           perror("errore: non è stato ricevuto il numero di righe\n");
@@ -144,7 +119,7 @@ int main(int argc, char **argv){
 
         printf("==================\n");
 
-        printf("sto per leggere le tuple una ad una...\n");
+        //printf("sto per leggere le tuple una ad una...\n");
         for(int i= 0; i < num_righe; i++)
         {
           if(read(fd,&tuple[i],1024)<0)
@@ -154,14 +129,15 @@ int main(int argc, char **argv){
           }
         }
 
-        printf("ho letto tuple\n");
-        printf("\n ==================\n");
+        if(num_righe>0){
+          printf("Tuple trovate:\n");
 
-        for(int i = 0; i< num_righe; i++)
-        {
-          printf("%s\n",tuple[i]);
+          for (int i = 0; i < num_righe; i++)
+          {
+            printf("%s\n", tuple[i]);
+          }
         }
-
+        else { printf("Non ci sono esami con questo ID.\n"); }
         
       } break;
       
