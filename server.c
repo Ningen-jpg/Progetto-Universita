@@ -21,7 +21,7 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
-//nuova
+//nuova, cambia solo che c'è la setsockopt in più, il resto è identico
 int get_key(int * connectFD)
 {
     int listenFD;
@@ -65,62 +65,28 @@ int get_key(int * connectFD)
     return key;
 }
 
-//vecchia
-/*int get_key(int * connectFD)
-{
-    int listenFD;
-    struct sockaddr_in server;
-
-    //creiamo la socket
-    if ( ( listenFD = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
-        perror("socket");
-        exit(1);
-    }
-    server.sin_family      = AF_INET;
-    server.sin_port        = htons(1025); //1025 porta server
-    server.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    if ( bind(listenFD, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
-        perror("bind");
-        exit(1);
-    }
-
-    //connessione con segreteria
-    if ( listen(listenFD, 1024) < 0 ) {
-        perror("listen");
-        exit(1);
-    }
-    printf("connessione in corso..\n");
-
-    int key;
-    *connectFD=accept(listenFD, NULL, NULL);
-    // printf("ho accettato con accept\n");
-    read(*connectFD,&key,sizeof(key));
-    //printf("il fd e : %d\n", connectFD);
-
-    return key;
-}*/
-
 int main(int argc, char **argv)
 { 
     char buffer[1024];
     int serverfd;
     char * data;
     int connectFD;
-    printf("\n==============================\n");
-    FILE * esami = fopen("esami.csv", "r");
-    if (esami == NULL)
-    {
-        printf("Error: Could not open the file\n");
-        exit(-1);
-    }
-    printf("File opened\n");
-
-    //leggiamo la prima riga
-    fgets(buffer, sizeof(buffer), esami);
-    printf("%s\n", buffer);
+    
 
     while(1){
+        printf("\n==============================\n");
+        FILE *esami = fopen("esami.csv", "r");
+        if (esami == NULL)
+        {
+            printf("Error: Could not open the file\n");
+            exit(-1);
+        }
+        printf("File opened\n");
+
+        // leggiamo la prima riga
+        fgets(buffer, sizeof(buffer), esami);
+        printf("%s\n", buffer);
+
         int key = get_key(&connectFD);
         printf("inizia il while qui\n");
 
@@ -144,6 +110,8 @@ int main(int argc, char **argv)
                 count++;
             }
         }
+
+        fclose(esami);
 
         /*test per stampare tutte le tuple trovate, non serve, vengono già stampate subito sopra (riga 142)
         
@@ -199,6 +167,5 @@ int main(int argc, char **argv)
             close(connectFD);
         }
     }
-    fclose(esami);
     printf("\n==============================\n");
 }
