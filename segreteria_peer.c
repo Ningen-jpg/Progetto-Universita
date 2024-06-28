@@ -122,7 +122,8 @@ int main(int argc, char **argv){
         }
 
         printf("maxfd attuale=%d\n", maxfd);
-        fd_disponibili=select(maxfd+1, &readSet, &writeSet, NULL, NULL);
+        fd_disponibili=select(maxfd+1, &readSet, &writeSet, NULL, NULL); //maxfx + 2 perchè deve gestire contemporanemante 2 client
+        fd_disponibili = fd_disponibili+1;
         printf("FD Disponibili=%d\n", fd_disponibili);
         sleep(1);
 
@@ -234,12 +235,13 @@ int main(int argc, char **argv){
                         //mando le tuple, riga per riga a studente
                         for(int i = 0; i < righe; i++)
                         {
-                            if(write(connectFD,tuple[i],strlen(tuple[i])+1)<0)
+                            if(write(connectFD,tuple[i],sizeof(tuple[i]))<0)
                             {
                                 perror("errore: non è stata inviata una tupla\n");
                                 exit(1);
                             }
                         }
+                        printf("ho mandato correttamente le tuple \n");
                     }
                 }
               
@@ -256,8 +258,10 @@ int main(int argc, char **argv){
             
             fd_connectedClient[connectFD]=1;//LO METTO NELLA LISTA DEI CLIENT CONNESSI
 
-            if(maxfd<connectFD) maxfd=connectFD;//RICONTROLLO IL MAX
-
+            if(maxfd<connectFD)
+            {
+                maxfd=connectFD;//RICONTROLLO IL MAX
+            }
             fd_disponibili--;
         }
 
