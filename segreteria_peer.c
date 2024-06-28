@@ -103,13 +103,13 @@ int main(int argc, char **argv){
     int fd_disponibili, fd_connectedClient[FD_SETSIZE]={0}, i;
     int maxfd=listenFD;
     
-    FD_ZERO(&readSet);
-    FD_ZERO(&writeSet);
     //-----
 
 
     while(1){
 
+        FD_ZERO(&readSet);
+        FD_ZERO(&writeSet);
         FD_SET(listenFD,&readSet);//SETTO IL READSET SUL FD DELLA SOCKET IN ASCOLTO
         //Mi metto in ascolto di STDIN se voglio diventare client
         FD_SET(STDIN_FILENO, &readSet);
@@ -138,8 +138,9 @@ int main(int argc, char **argv){
                 perror (" fork error ");
                 exit ( -1);
             }
-
+            printf("sono il padre uiii\n");
             if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
+                printf("sono nel figlio prima della switch\n");
                 int choice;
                 read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
@@ -243,10 +244,16 @@ int main(int argc, char **argv){
                         }
                         printf("ho mandato correttamente le tuple \n");
                     }
+                    break;
+                    case 3: //lo studente ha deciso di chiudere la connessione con segreteria
+                    {
+                        printf("sto per chiudere la connessione...\n");
+                        close(connectFD);
+                        exit (-1);
+                    }
                 }
               
-                close(connectFD);
-                exit (-1);
+          
             }
             else //SONO IL PADRE
             { 
