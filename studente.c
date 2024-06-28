@@ -113,23 +113,22 @@ int main(int argc, char **argv){
           perror("errore: non è stato ricevuto il numero di righe\n");
           exit(1);
         }
-
-        //matrice per le eventuali tuple trovate
-        char tuple[10][1024];
-
-        printf("==================\n");
-
-        //printf("sto per leggere le tuple una ad una...\n");
-        for(int i= 0; i < num_righe; i++)
-        {
-          if(read(fd,&tuple[i],1024)<0)
-          {
-            perror("errore: non sono state lette le tuple\n");
-            exit(1);
-          }
-        }
-
         if(num_righe>0){
+          //matrice per le eventuali tuple trovate
+          char tuple[10][1024];
+
+          printf("==================\n");
+
+          //printf("sto per leggere le tuple una ad una...\n");
+          for(int i= 0; i < num_righe; i++)
+          {
+            if(read(fd,&tuple[i],1024)<0)
+            {
+              perror("errore: non sono state lette le tuple\n");
+              exit(1);
+            }
+          }
+
           printf("Tuple trovate:\n");
 
           for (int i = 0; i < num_righe; i++)

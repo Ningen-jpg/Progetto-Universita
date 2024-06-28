@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         int i=0;
         int count=0; //per scorrere le righe della matrice, indica anche il num di tuple trovate
         int chiave; //per ottenere il valore intero con atoi
-        // char **matrice = (char **)calloc(10,sizeof(char *));
+        
         char matrice [10][1024];
     
         while (fgets(buffer, sizeof(buffer), esami))
@@ -139,68 +139,65 @@ int main(int argc, char **argv)
             chiave = atoi(strtok(buffer, ","));
             if (chiave == key)
             {
-                printf("\n ============TEST\n============\n debug buff_temp =%s\n",buff_temp);
+                printf("%d° riga trovata :\n%s\n",count+1,buff_temp);
                 strcpy(matrice[count], buff_temp);
                 count++;
             }
         }
 
-        //test
+        /*test per stampare tutte le tuple trovate, non serve, vengono già stampate subito sopra (riga 142)
+        
         printf("Tuple trovate con ID %d:\n", key);
         for (int i = 0; i < count; i++)
         {
             printf("%s", matrice[i]);
-        }
-
-        printf("sto inviando num righe\n");
-        //invia num righe
-        if(write(connectFD, &count, sizeof(int))<0)
-        {
-            perror("errore, non sono state inviate il num di righe\n");
-            exit(1);
-        }
-
-        printf("sto inviando le tuple..\n");
-        //invia tuple a segreteria
-        int bytesc =0;
-        for(int i=0;i<count;i++)
-        {
-            if ((bytesc= write(connectFD, matrice[i], sizeof(matrice[i])))< 0) {
-                perror("write");
-                exit(1);
-            }
-        }
-
-        //printf("la prima tupla è: %s\n", matrice[0]);
-        //test per vedere se invia anche una sola riga
-        //printf("size della prima tupla: %lu\n", strlen(matrice[0]));
-
-        // matrice[0][strlen(matrice[0])+1] = '\0';
-        /*if ((bytesc= write(connectFD, matrice[i], 1025))< 0) {
-            perror("write");
-            exit(1);
         }*/
-
-        printf("byte scritti: %d\n", bytesc);
-
-        // test
-        // check del size di matrice[i]
-        /*
-        for (int i = 0; i < count; i++){
-            printf("sto per scrivere la seguente riga: %s\n",matrice[i]);
-            matrice[i][strlen(matrice[i])+1]= '\0';
-            if (write(connectFD, matrice[i], strlen(matrice[i])+1)< 0) {
-                perror("write");
+        if(count>0){
+            printf("sto inviando num righe\n");
+            //invia num righe
+            if(write(connectFD, &count, sizeof(int))<0)
+            {
+                perror("errore, non sono state inviate il num di righe\n");
                 exit(1);
             }
-            printf("il size di matrice[i]+1 e: %lu\n",strlen(matrice[i]+1));
 
+            printf("sto inviando le tuple..\n");
+            //invia tuple a segreteria
+            int bytesc =0;
+            for(int i=0;i<count;i++)
+            {
+                if ((bytesc= write(connectFD, matrice[i], sizeof(matrice[i])))< 0) {
+                    perror("write");
+                    exit(1);
+                }
+            }
+
+            //printf("la prima tupla è: %s\n", matrice[0]);
+            //test per vedere se invia anche una sola riga
+            //printf("size della prima tupla: %lu\n", strlen(matrice[0]));
+
+            // matrice[0][strlen(matrice[0])+1] = '\0';
+            /*if ((bytesc= write(connectFD, matrice[i], 1025))< 0) {
+                perror("write");
+                exit(1);
+            }*/
+
+            printf("byte scritti: %d\n", bytesc);
+
+            //printf("FORSE ho inviato le tuple\n");
+
+            close(connectFD);
         }
-        */
-
-        printf("FORSE ho inviato le tuple\n");
-
-        close(connectFD);
+        else{
+            printf("sto inviando num righe\n");
+            //invia num righe
+            if(write(connectFD, &count, sizeof(int))<0)
+            {
+                perror("errore, non sono state inviate il num di righe\n");
+                exit(1);
+            }
+            close(connectFD);
+        }
     }
     fclose(esami);
     printf("\n==============================\n");
