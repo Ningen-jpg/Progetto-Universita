@@ -10,14 +10,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <errno.h>
-/*void ricerca_esami(){
-    char corso[20];
-    printf("Per quale corso vuoi ricercare: ");
-    scanf("%s",corso);
-    printf("Hai chiesto alla segreteria se ci sono esami per %s",corso);
-    printf("\nattendere prego..");
-  
-}*/
 
 //la close del socket và fatta solo una volta che a studente vengono inviati i dati (le date di esame) che stava cercando
 
@@ -69,18 +61,72 @@ void sendID(int fd, int argc, char **argv) {
   printf("ID inviato\n");
 }
 
-void sendScelta(int fd, int * scelta)
+void sendScelta(int fd, int scelta)
 {
   
-  if(write(fd, scelta, sizeof(scelta))  != sizeof(scelta))
+  if(write(fd, &scelta, sizeof(scelta))  != sizeof(scelta))
   {
     perror("Scelta non inviata\n");
     exit(1);
   }
 }
 
-void richiesta_prenotazione(){ // da implementare
+void ricerca_esami(int fd, int scelta, int argc, char **argv)
+{
+  sendScelta(fd, scelta);
+  sendID(fd, argc, argv);
+  int num_righe;
 
+  // printf("sto per leggere il numero di righe..\n");
+  if (read(fd, &num_righe, sizeof(num_righe)) < 0)
+  {
+    perror("errore: non è stato ricevuto il numero di righe\n");
+    exit(1);
+  }
+  printf("il num di righe arrivate e' : %d\n", num_righe);
+  if (num_righe > 0)
+  {
+    // matrice per le eventuali tuple trovate
+
+    char tuple[num_righe][1024];
+    printf("==================\n");
+
+    // printf("sto per leggere le tuple una ad una...\n");
+    for (int i = 0; i < num_righe; i++)
+    {
+      if (read(fd, &tuple[i], sizeof(tuple[i])) < 0)
+      {
+        perror("errore: non sono state lette le tuple\n");
+        exit(1);
+      }
+    }
+
+    printf("Tuple trovate:\n");
+
+    for (int i = 0; i < num_righe; i++)
+    {
+      printf("%s\n", tuple[i]);
+    }
+  }
+  else
+  {
+    printf("Non ci sono esami con questo ID.\n");
+  }
+}
+
+void richiesta_prenotazione(int fd,int scelta, int argc,char **argv){
+  ricerca_esami(fd,scelta,argc,argv);
+  printf("\nPer quale data vuoi prenotarti?: ");
+  int sceltadata;
+  scanf("%d",&sceltadata);
+  sendScelta(fd,sceltadata);
+  int numero_progressivo;
+  if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
+  {
+    perror("errore: non è stato ricevuto il numero progressivo\n");
+    exit(1);
+  }
+  printf("Il tuo numero di prenotazione e' : %d\n", numero_progressivo);
 }
 
 
@@ -89,62 +135,27 @@ int main(int argc, char **argv){
   // char buffer[INET6_ADDRSTRLEN];
  
   int scelta= 0;
+  int fd;
   while (1)
   {
-    printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\nScegli: ");
+    printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\n3) Interrompi la comunicazione\nScegli: ");
     scanf("%d", &scelta);
-    
+    fd = creaSocket(argc, argv);
     switch(scelta)
     {
       case 1:  //ricerca esami
       {
-        
-        
-        int * choice = calloc(1, sizeof(int));
-        *choice = scelta;
-        int fd = creaSocket(argc, argv);
-        sendScelta(fd,choice);
-        sendID (fd,argc,argv);
-        int num_righe;
-
-        //printf("sto per leggere il numero di righe..\n");
-        if(read(fd,&num_righe,sizeof(num_righe))<0)
-        {
-          perror("errore: non è stato ricevuto il numero di righe\n");
-          exit(1);
-        }
-        printf("il num di righe arrivate e' : %d\n",num_righe);
-        if(num_righe>0){
-          //matrice per le eventuali tuple trovate
-
-          char tuple[num_righe][1024];
-          printf("==================\n");
-
-          //printf("sto per leggere le tuple una ad una...\n");
-          for(int i= 0; i < num_righe; i++)
-          {
-            if(read(fd,&tuple[i],sizeof(tuple[i]))<0)
-            {
-              perror("errore: non sono state lette le tuple\n");
-              exit(1);
-            }
-          }
-
-          printf("Tuple trovate:\n");
-
-          for (int i = 0; i < num_righe; i++)
-          {
-            printf("%s\n", tuple[i]);
-          }
-        }
-        else { printf("Non ci sono esami con questo ID.\n"); }
-        
+        ricerca_esami(fd,scelta,argc,argv);
       } break;
       
       case 2: 
-        richiesta_prenotazione(); //da implementare
+        richiesta_prenotazione(fd,scelta,argc,argv);
         break;
-
+      case 3: 
+        //lo studente interrompe la connessione con la segreteria
+        sendScelta(fd,scelta);
+        close(fd);
+        exit(0);
       default: 
         printf("errore: scelta errrata\n");
         break;

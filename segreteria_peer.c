@@ -245,6 +245,11 @@ int main(int argc, char **argv){
                         printf("ho mandato correttamente le tuple \n");
                     }
                     break;
+                    case 2:
+                    {
+                        
+                    }
+                    break;
                     case 3: //lo studente ha deciso di chiudere la connessione con segreteria
                     {
                         printf("sto per chiudere la connessione...\n");
