@@ -94,12 +94,197 @@ int main(int argc, char **argv)
         {
             case 1:
             {
+                printf("\n==============================\n");
+                FILE *esami = fopen("esami.csv", "r");
+                if (esami == NULL)
+                {
+                    printf("Error: Could not open the file\n");
+                    exit(-1);
+                }
+                printf("File opened\n");
 
+                // leggiamo la prima riga
+                fgets(buffer, sizeof(buffer), esami);
+                printf("%s\n", buffer);
+
+                crea_connessione(&connectFD);
+                int key = get_key(connectFD);
+
+                printf("inizia il while qui\n");
+
+                // inizializziamo matrice
+                int i = 0;
+                int count = 0; // per scorrere le righe della matrice, indica anche il num di tuple trovate
+                int chiave;    // per ottenere il valore intero con atoi
+
+                char matrice[10][1024];
+
+                while (fgets(buffer, sizeof(buffer), esami))
+                {
+                    char buff_temp[1024];
+                    strcpy(buff_temp, buffer);
+
+                    chiave = atoi(strtok(buffer, ","));
+                    if (chiave == key)
+                    {
+                        printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
+                        strcpy(matrice[count], buff_temp);
+                        count++;
+                    }
+                }
+
+                fclose(esami);
+
+                if (count > 0)
+                {
+                    printf("sto inviando num righe\n");
+                    // invia num righe
+                    if (write(connectFD, &count, sizeof(int)) < 0)
+                    {
+                        perror("errore, non sono state inviate il num di righe\n");
+                        exit(1);
+                    }
+
+                    printf("sto inviando le tuple..\n");
+                    // invia tuple a segreteria
+                    int bytesc = 0;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if ((bytesc = write(connectFD, matrice[i], sizeof(matrice[i]))) < 0)
+                        {
+                            perror("write");
+                            exit(1);
+                        }
+                    }
+
+                    printf("byte scritti: %d\n", bytesc);
+
+                    close(connectFD);
+                }
+                else
+                {
+                    printf("sto inviando num righe\n");
+                    // invia num righe
+                    if (write(connectFD, &count, sizeof(int)) < 0)
+                    {
+                        perror("errore, non sono state inviate il num di righe\n");
+                        exit(1);
+                    }
+                    close(connectFD);
+                }
             }
             break;
             case 2:
             {
+                printf("\n==============================\n");
+                FILE *esami = fopen("esami.csv", "r+");
+                if (esami == NULL)
+                {
+                    printf("Error: Could not open the file\n");
+                    exit(-1);
+                }
+                printf("File opened\n");
 
+                // leggiamo la prima riga
+                fgets(buffer, sizeof(buffer), esami);
+                printf("%s\n", buffer);
+
+                crea_connessione(&connectFD);
+                int key = get_key(connectFD);
+
+                printf("inizia il while qui\n");
+
+                // inizializziamo matrice
+                int i = 0;
+                int count = 0; // per scorrere le righe della matrice, indica anche il num di tuple trovate
+                int chiave;    // per ottenere il valore intero con atoi
+
+                char matrice[10][1024];
+
+                int posizione_tupla= -1; 
+                int array_di_indici[10];
+                while (fgets(buffer, sizeof(buffer), esami))
+                {
+
+                    char buff_temp[1024];
+                    strcpy(buff_temp, buffer);
+
+                    chiave = atoi(strtok(buffer, ","));
+                    posizione_tupla ++;
+                    if (chiave == key)
+                    {
+                        printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
+                        strcpy(matrice[count], buff_temp);
+                        count++;
+                        array_di_indici[--count] = posizione_tupla;
+                    
+                    }
+                }
+
+                if (count > 0)
+                {
+                    printf("sto inviando num righe\n");
+                    // invia num righe
+                    if (write(connectFD, &count, sizeof(int)) < 0)
+                    {
+                        perror("errore, non sono state inviate il num di righe\n");
+                        exit(1);
+                    }
+
+                    printf("sto inviando le tuple..\n");
+                    // invia tuple a segreteria
+                    int bytesc = 0;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if ((bytesc = write(connectFD, matrice[i], sizeof(matrice[i]))) < 0)
+                        {
+                            perror("write");
+                            exit(1);
+                        }
+                    }
+
+                    // va fatta qui la parte in cui lo studente sceglie la data tramite una semplice "scelta"
+                    int sceltaData;
+                    if (read(connectFD, &sceltaData, sizeof(sceltaData)) < 0)
+                    {
+                        perror("sceltaData andata male");
+                        exit(-1);
+                    }
+
+                    // ricevuta la scelta data
+                    char buffer_tupla[1024]; //per poter ricopiare la tupla aggiornata nel file
+                    sceltaData--;
+                    char *campo = strrchr(matrice[sceltaData], ',');
+                    int prenotazione = atoi(campo+1);
+                    prenotazione++;
+                    char prenotazione_aggiornata[10]; //per contenere la prenotazione / per convertire da intero a char di nuovo/
+                    sprintf(prenotazione_aggiornata, "%d", prenotazione);
+                    strcpy(campo+1,prenotazione_aggiornata); //aggiorniamo la prenotazione
+
+                    strcpy(buffer_tupla,matrice[sceltaData]);
+
+                    buffer_tupla[campo] = prenotazione_aggiornata;
+                    //fine aggiornamento campo
+
+                    
+
+                    fseek(esami,array_di_indici[sceltaData],SEEK_SET); //per andarci a posizionare sulla tupla da aggiornare
+                    fputs()
+
+                    fclose(esami);
+                    close(connectFD);
+                }
+                else
+                {
+                    printf("sto inviando num righe\n");
+                    // invia num righe
+                    if (write(connectFD, &count, sizeof(int)) < 0)
+                    {
+                        perror("errore, non sono state inviate il num di righe\n");
+                        exit(1);
+                    }
+                    close(connectFD);
+                }
             }
             break;
             case 3:
@@ -110,81 +295,7 @@ int main(int argc, char **argv)
 
         }
         
-        printf("\n==============================\n");
-        FILE *esami = fopen("esami.csv", "r");
-        if (esami == NULL)
-        {
-            printf("Error: Could not open the file\n");
-            exit(-1);
-        }
-        printf("File opened\n");
-
-        // leggiamo la prima riga
-        fgets(buffer, sizeof(buffer), esami);
-        printf("%s\n", buffer);
-
-        crea_connessione(&connectFD);
-        int key = get_key(connectFD);
-
-        printf("inizia il while qui\n");
-
-        //inizializziamo matrice
-        int i=0;
-        int count=0; //per scorrere le righe della matrice, indica anche il num di tuple trovate
-        int chiave; //per ottenere il valore intero con atoi
         
-        char matrice [10][1024];
-    
-        while (fgets(buffer, sizeof(buffer), esami))
-        {
-            char buff_temp[1024];
-            strcpy(buff_temp,buffer);
-                
-            chiave = atoi(strtok(buffer, ","));
-            if (chiave == key)
-            {
-                printf("%d° riga trovata :\n%s\n",count+1,buff_temp);
-                strcpy(matrice[count], buff_temp);
-                count++;
-            }
-        }
-
-        fclose(esami);
-
-        if(count>0){
-            printf("sto inviando num righe\n");
-            //invia num righe
-            if(write(connectFD, &count, sizeof(int))<0)
-            {
-                perror("errore, non sono state inviate il num di righe\n");
-                exit(1);
-            }
-
-            printf("sto inviando le tuple..\n");
-            //invia tuple a segreteria
-            int bytesc =0;
-            for(int i=0;i<count;i++)
-            {
-                if ((bytesc= write(connectFD, matrice[i], sizeof(matrice[i])))< 0) {
-                    perror("write");
-                    exit(1);
-                }
-            }
-
-            printf("byte scritti: %d\n", bytesc);
-
-            close(connectFD);
-        }
-        else{
-            printf("sto inviando num righe\n");
-            //invia num righe
-            if(write(connectFD, &count, sizeof(int))<0)
-            {
-                perror("errore, non sono state inviate il num di righe\n");
-                exit(1);
-            }
-            close(connectFD);
-        }
     }
     printf("\n==============================\n");
 }

@@ -281,7 +281,7 @@ int main(int argc, char **argv){
                     break;
                     case 2:
                     {
-                        
+                         richiesta_prenotazione(connectFD,listenFD,socketClientFD,server_addr,client_addr);
                     }
                     break;
                     case 3: //lo studente ha deciso di chiudere la connessione con segreteria
@@ -289,6 +289,7 @@ int main(int argc, char **argv){
                         printf("sto per chiudere la connessione...\n");
                         close(connectFD);
                     }
+                   
                 }
               
           
