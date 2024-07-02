@@ -3,13 +3,13 @@ all: server segreteria studente
 
 
 server: server.c
-	clang server.c -o server
+	gcc server.c -o server
 
 segreteria: segreteria_peer.c
-	clang segreteria_peer.c -o peer
+	gcc segreteria_peer.c -o peer
 
 studente: studente.c
-	clang studente.c -o studente
+	gcc studente.c -o studente
 
 serverExe: server
 	./server

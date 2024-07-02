@@ -60,6 +60,135 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
     }
 }
 
+void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr)
+{
+    // STEP:
+    // connettiamoci con server
+    // manda id
+    // prendi buffer di tuple esami
+    // restituisci a studente con Write
+    int chiave = manage_exams(connectFD, listenFD);
+
+    // ora si connette con server
+    if ((socketClientFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        perror("socket client");
+        exit(-1);
+    }
+    if (connect(socketClientFD, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
+    {
+        fprintf(stderr, "Errore di connessione\n");
+        exit(1);
+    }
+    printf("Connessione avvenuta con il Server Universitario.\n");
+    // ho inviato la chiave
+    if (write(socketClientFD, &chiave, sizeof(chiave)) < 0)
+    {
+        perror("errore: non e' stata copiata la chiave");
+        exit(1);
+    }
+    // prende le tuple
+    // dichiariamo num righe
+    int righe = 0;
+    if (read(socketClientFD, &righe, sizeof(righe)) < 0)
+    {
+        perror("read non fatta");
+        exit(-1);
+    }
+    printf("il numero di righe prese e': %d\n", righe);
+    // allochiamo la matrice dinamica
+    char tuple[10][1024];
+
+    printf("sto leggendo tuple da server\n");
+    // leggiamo le tuple da server
+
+    // test per vedere se anche una sola riga viene inviata
+    int read_value = 0;
+
+    /*if((read_value = read(socketClientFD, &tuple[0],1025))<0)
+    {
+        perror("errore: non è stata copiata una tupla\n");
+        exit(1);
+    }
+    printf("read_value: %d\n", read_value);*/
+
+    for (int i = 0; i < righe; i++)
+    {
+        if ((read_value = read(socketClientFD, &tuple[i], sizeof(tuple[i]))) < 0)
+        {
+            perror("errore: non è stata copiata una tupla\n");
+            exit(1);
+        }
+        printf("read_value: %d\n", read_value);
+    }
+
+    // test NOSTRO per vedere se le tuple sono integre
+
+    printf("STAMPO LE TUPLE SU SEGRETERIA\n");
+    for (int i = 0; i < righe; i++)
+    {
+        printf("%s\n", tuple[i]);
+    }
+
+    // printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
+    // printf("stringa: %s\n",tuple[0]);
+
+    // test makefile
+    printf("sto mandando num righe a studente\n");
+    if (write(connectFD, &righe, sizeof(righe)) < 0)
+    {
+        perror("errore: num righe non inviato\n");
+        exit(1);
+    }
+
+    printf("=========================\n");
+    printf("sto mandando le tuple a studente...\n");
+
+    // mando le tuple, riga per riga a studente
+    for (int i = 0; i < righe; i++)
+    {
+        if (write(connectFD, tuple[i], sizeof(tuple[i])) < 0)
+        {
+            perror("errore: non è stata inviata una tupla\n");
+            exit(1);
+        }
+    }
+    printf("ho mandato correttamente le tuple \n");
+}
+void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr) //richiesta prenotazione lato segreteria
+{
+    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr);
+    //leggo la scelta della data
+    int sceltaData;
+    if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
+    {
+        perror("read non andata bene");
+        exit(-1);
+    }
+    //mando la scelta della tupla sulla quale prenotarci su server
+    if (write(socketClientFD, &sceltaData, sizeof(sceltaData)) < 0)
+    {
+        perror("Write non andata bene");
+        exit(-1);
+    }
+
+    //read del numero progressivo di prenotazioni (è stato già incrementato su server)
+
+    int numeroProgress;
+     if(read(socketClientFD,&numeroProgress,sizeof(numeroProgress))<0)
+    {
+        perror("read non andata bene");
+        exit(-1);
+    }
+
+    //mandiamo il numero progressivo a studente
+    if (write(connectFD, &numeroProgress, sizeof(numeroProgress)) < 0)
+    {
+        perror("Write non andata bene");
+        exit(-1);
+    }
+}
+
 int main(int argc, char **argv){
     int listenFD, connectFD, socketClientFD;
     int pid;
@@ -138,111 +267,16 @@ int main(int argc, char **argv){
                 perror (" fork error ");
                 exit ( -1);
             }
-            printf("sono il padre uiii\n");
             if(pid==0){ //SE SONO IL FIGLIO GESTISCO IL SERVZIO	
-                printf("sono nel figlio prima della switch\n");
                 int choice;
                 read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
             
                 switch (choice)
                 {
-                    case 1: //invia 
+                    case 1:  
                     {
-                        //STEP:
-                        //connettiamoci con server 
-                        //manda id
-                        //prendi buffer di tuple esami
-                        //restituisci a studente con Write
-                        int chiave = manage_exams(connectFD,listenFD);
-                        
-                        //ora si connette con server
-                        if((socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
-                        {
-                            perror("socket client"); 
-                            exit(-1);
-                        }
-                        if (connect(socketClientFD, (struct sockaddr *) &client_addr, sizeof(client_addr)) < 0) 
-                        {
-                            fprintf(stderr,"Errore di connessione\n");
-                            exit(1);
-                        }
-                        printf("Connessione avvenuta con il Server Universitario.\n");
-                        //ho inviato la chiave
-                        if(write(socketClientFD,&chiave,sizeof(chiave))<0)
-                        {
-                            perror("errore: non e' stata copiata la chiave");
-                            exit(1);
-                        }
-                        //prende le tuple
-                        //dichiariamo num righe
-                        int righe = 0;
-                        if(read(socketClientFD,&righe, sizeof(righe))<0)
-                        {
-                            perror("read non fatta");
-                            exit(-1);
-                        }
-                        printf("il numero di righe prese e': %d\n", righe);
-                        //allochiamo la matrice dinamica
-                        char tuple[10][1024];
-                        
-                        
-                        printf("sto leggendo tuple da server\n");
-                        //leggiamo le tuple da server
-
-                        //test per vedere se anche una sola riga viene inviata
-                        int read_value = 0;
-                        
-                        /*if((read_value = read(socketClientFD, &tuple[0],1025))<0)
-                        {
-                            perror("errore: non è stata copiata una tupla\n");
-                            exit(1);
-                        }
-                        printf("read_value: %d\n", read_value);*/
-                        
-                        
-                        for(int i = 0; i< righe ;  i++)
-                        {
-                            if( (read_value =read(socketClientFD, &tuple[i],sizeof(tuple[i])))<0)
-                            {
-                                perror("errore: non è stata copiata una tupla\n");
-                                exit(1);
-                            }
-                            printf("read_value: %d\n",read_value);
-                        }
-                        
-                        //test NOSTRO per vedere se le tuple sono integre
-                        
-                        printf("STAMPO LE TUPLE SU SEGRETERIA\n");
-                        for (int i = 0; i < righe; i++)
-                        {
-                            printf("%s\n", tuple[i]);
-                        }
-                        
-                        //printf("size della matrice che e arrivata: %lu\n",strlen(tuple[0]));
-                        //printf("stringa: %s\n",tuple[0]);
-
-                        //test makefile
-                        printf("sto mandando num righe a studente\n");
-                        if(write(connectFD, &righe,sizeof(righe))<0)
-                        {
-                            perror("errore: num righe non inviato\n");
-                            exit(1);
-                        }
-                        
-                        printf("=========================\n");
-                        printf("sto mandando le tuple a studente...\n");
-
-                        //mando le tuple, riga per riga a studente
-                        for(int i = 0; i < righe; i++)
-                        {
-                            if(write(connectFD,tuple[i],sizeof(tuple[i]))<0)
-                            {
-                                perror("errore: non è stata inviata una tupla\n");
-                                exit(1);
-                            }
-                        }
-                        printf("ho mandato correttamente le tuple \n");
+                       ricerca_esami(connectFD,listenFD,socketClientFD, server_addr,client_addr);
                     }
                     break;
                     case 2:
@@ -254,7 +288,6 @@ int main(int argc, char **argv){
                     {
                         printf("sto per chiudere la connessione...\n");
                         close(connectFD);
-                        exit (-1);
                     }
                 }
               

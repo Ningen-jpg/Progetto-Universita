@@ -22,7 +22,7 @@ typedef struct{
 }Esame;
 
 //nuova, cambia solo che c'è la setsockopt in più, il resto è identico
-int get_key(int * connectFD)
+void crea_connessione(int * connectFD)
 {
     int listenFD;
     struct sockaddr_in server;
@@ -56,14 +56,23 @@ int get_key(int * connectFD)
     }
     printf("connessione in corso..\n");
 
-    int key;
     *connectFD = accept(listenFD, NULL, NULL);
     // printf("ho accettato con accept\n");
-    read(*connectFD, &key, sizeof(key));
     //printf("il fd e : %d\n", connectFD);
     close(listenFD);
-    return key;
 }
+int get_key(int connectFD)
+{
+    int key;
+    if(read(connectFD, &key, sizeof(key))<0)
+    {
+        perror("get_key andata male");
+        exit(-1);
+    }
+    return key;
+
+}
+
 
 int main(int argc, char **argv)
 { 
@@ -71,9 +80,36 @@ int main(int argc, char **argv)
     int serverfd;
     char * data;
     int connectFD;
+    int scelta;
     
 
     while(1){
+        crea_connessione(&connectFD);
+        if(read(connectFD,&scelta, sizeof(scelta))<0)
+        {
+            perror("read non andata bene");
+            exit(-1);
+        }
+        switch(scelta)
+        {
+            case 1:
+            {
+
+            }
+            break;
+            case 2:
+            {
+
+            }
+            break;
+            case 3:
+            {
+
+            }
+            break;
+
+        }
+        
         printf("\n==============================\n");
         FILE *esami = fopen("esami.csv", "r");
         if (esami == NULL)
@@ -87,7 +123,9 @@ int main(int argc, char **argv)
         fgets(buffer, sizeof(buffer), esami);
         printf("%s\n", buffer);
 
-        int key = get_key(&connectFD);
+        crea_connessione(&connectFD);
+        int key = get_key(connectFD);
+
         printf("inizia il while qui\n");
 
         //inizializziamo matrice
@@ -113,13 +151,6 @@ int main(int argc, char **argv)
 
         fclose(esami);
 
-        /*test per stampare tutte le tuple trovate, non serve, vengono già stampate subito sopra (riga 142)
-        
-        printf("Tuple trovate con ID %d:\n", key);
-        for (int i = 0; i < count; i++)
-        {
-            printf("%s", matrice[i]);
-        }*/
         if(count>0){
             printf("sto inviando num righe\n");
             //invia num righe
@@ -140,19 +171,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            //printf("la prima tupla è: %s\n", matrice[0]);
-            //test per vedere se invia anche una sola riga
-            //printf("size della prima tupla: %lu\n", strlen(matrice[0]));
-
-            // matrice[0][strlen(matrice[0])+1] = '\0';
-            /*if ((bytesc= write(connectFD, matrice[i], 1025))< 0) {
-                perror("write");
-                exit(1);
-            }*/
-
             printf("byte scritti: %d\n", bytesc);
-
-            //printf("FORSE ho inviato le tuple\n");
 
             close(connectFD);
         }
