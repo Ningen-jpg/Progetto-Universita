@@ -36,7 +36,7 @@ int manage_exams(int connfd, int listenfd) // RICEVE CHIAVE che serve a recupera
     return buff;
 }
 
-void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
+void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd) //quando il peer funge da client
 {
     //ora creiamo la socket che funge da client
 
@@ -163,7 +163,7 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
 }
 void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr,int choice) //richiesta prenotazione lato segreteria
 {
-    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice);
+    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice); //choice è la scelta dello switch
     //leggo la scelta della data
     int sceltaData;
     if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
@@ -187,8 +187,11 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
     //read del numero progressivo di prenotazioni (è stato già incrementato su server)
 
     int numeroProgress;
+    
+    printf("sto per fare la read da parte di server del numero progressivo\n");
      if(read(socketClientFD,&numeroProgress,sizeof(numeroProgress))<0)
     {
+        printf("aiuto la read è andata in errore");
         perror("read non andata bene");
         exit(-1);
     }
