@@ -21,21 +21,20 @@ typedef struct{
    int numero_prenotati;
 }Esame;
 
- int manage_exams(int connfd,int listenfd) //RICEVE CHIAVE che serve a recuperare l'esame scelto
+int manage_exams(int connfd, int listenfd) // RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
     int buff;
-  if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
-  {
-      perror("errore read");
-      exit(1);
-  }
-  // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
+    if ((read(connfd, &buff, 1024)) < 0) // legge la chiave da cercare (mandata da studente)
+    {
+        perror("errore read");
+        exit(1);
+    }
+    // la socket va chiusa SOLO dopo aver mandato indietro (a studente), le informazioni richieste(lista date esami)
 
-  printf(" mi trovo su manage exams\n");
-  printf("chiave = %d\n", buff); // test
-  return buff;
+    printf(" mi trovo su manage exams\n");
+    printf("chiave = %d\n", buff); // test
+    return buff;
 }
-
 
 void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
 {
@@ -60,7 +59,7 @@ void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd)
     }
 }
 
-void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr)
+void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr, int choice)
 {
     // STEP:
     // connettiamoci con server
@@ -81,6 +80,13 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
         exit(1);
     }
     printf("Connessione avvenuta con il Server Universitario.\n");
+    // ho inviato la scelta
+    if (write(socketClientFD, &choice, sizeof(choice)) < 0)
+    {
+        perror("errore: non e' stata copiata la scelta");
+        exit(1);
+    }
+
     // ho inviato la chiave
     if (write(socketClientFD, &chiave, sizeof(chiave)) < 0)
     {
@@ -155,9 +161,9 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
     }
     printf("ho mandato correttamente le tuple \n");
 }
-void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr) //richiesta prenotazione lato segreteria
+void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr,int choice) //richiesta prenotazione lato segreteria
 {
-    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr);
+    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice);
     //leggo la scelta della data
     int sceltaData;
     if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
@@ -271,17 +277,17 @@ int main(int argc, char **argv){
                 int choice;
                 read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
-            
+
                 switch (choice)
                 {
                     case 1:  
                     {
-                       ricerca_esami(connectFD,listenFD,socketClientFD, server_addr,client_addr);
+                       ricerca_esami(connectFD,listenFD,socketClientFD, server_addr,client_addr,choice);
                     }
                     break;
                     case 2:
                     {
-                         richiesta_prenotazione(connectFD,listenFD,socketClientFD,server_addr,client_addr);
+                         richiesta_prenotazione(connectFD,listenFD,socketClientFD,server_addr,client_addr,choice);
                     }
                     break;
                     case 3: //lo studente ha deciso di chiudere la connessione con segreteria
