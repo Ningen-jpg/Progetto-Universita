@@ -1,6 +1,7 @@
 CC = clang
 all: server segreteria studente 
 
+clang: serverClang studenteClang peerClang
 
 server: server.c
 	gcc server.c -o server
@@ -19,6 +20,15 @@ peerExe: peer
 
 studenteExe: studente
 	./studente 127.0.0.1
+
+serverClang: server.c
+	clang server.c -o server
+	
+studenteClang: studente.c
+	clang studente.c -o studente
+
+peerClang: peer.c
+	clang peer.c -o peer
 
 clean: 
 	@echo "Sto pulendo..."
