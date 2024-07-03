@@ -68,18 +68,7 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
     // restituisci a studente con Write
     int chiave = manage_exams(connectFD, listenFD);
 
-    // ora si connette con server
-    if ((socketClientFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        perror("socket client");
-        exit(-1);
-    }
-    if (connect(socketClientFD, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
-    {
-        fprintf(stderr, "Errore di connessione\n");
-        exit(1);
-    }
-    printf("Connessione avvenuta con il Server Universitario.\n");
+    
     // ho inviato la scelta
     if (write(socketClientFD, &choice, sizeof(choice)) < 0)
     {
@@ -287,7 +276,18 @@ int main(int argc, char **argv){
                 int choice;
                 read(connectFD,&choice, 1024); //connectFD è fd della connessione con studente
                 //ho letto la scelta, ora va fatto switch case
-
+                // ora si connette con server
+                if ((socketClientFD = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                {
+                    perror("socket client");
+                    exit(-1);
+                }
+                if (connect(socketClientFD, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
+                {
+                    fprintf(stderr, "Errore di connessione\n");
+                    exit(1);
+                }
+                printf("Connessione avvenuta con il Server Universitario.\n");
                 switch (choice)
                 {
                     case 1:  
