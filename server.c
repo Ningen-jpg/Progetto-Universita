@@ -239,7 +239,7 @@ void richiesta_prenotazione(int connectFD){
         //debug
         printf("%s",matrice[sceltaData]);
         // Aggiorna il file con la nuova prenotazione
-        fseek(esami, array_di_indici[sceltaData], SEEK_SET);
+        fseek(esami, array_di_indici[sceltaData]+1, SEEK_SET);
         fputs(matrice[sceltaData], esami);
 
         fclose(esami);
