@@ -102,10 +102,10 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
     }
 
     printf("Tuple trovate:\n");
-
+    int c=1;
     for (int i = 0; i < num_righe; i++)
     {
-      printf("%s\n", tuple[i]);
+      printf("%d° %s\n",c, tuple[i]);
     }
   }
   else
