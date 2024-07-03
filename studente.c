@@ -1,4 +1,4 @@
-//Chiede alla segreteria se ci siano esami disponibili per un corso
+//Chiede alla segreteria se ci siano esami disponibili un corso
 //Invia una richiesta di prenotazione di un esame alla segreteria
 
 #include <netdb.h>
@@ -63,7 +63,6 @@ void sendID(int fd, int argc, char **argv) {
 
 void sendScelta(int fd, int scelta)
 {
-  
   if(write(fd, &scelta, sizeof(scelta))  != sizeof(scelta))
   {
     perror("Scelta non inviata\n");
@@ -106,6 +105,7 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
     for (int i = 0; i < num_righe; i++)
     {
       printf("%d° %s\n",c, tuple[i]);
+      c++;
     }
   }
   else
@@ -120,6 +120,7 @@ void richiesta_prenotazione(int fd,int scelta, int argc,char **argv){
   int sceltadata;
   scanf("%d",&sceltadata);
   sendScelta(fd,sceltadata);
+  printf("sono dopo sendScelta\n");
   int numero_progressivo;
   if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
   {

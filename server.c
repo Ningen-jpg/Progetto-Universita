@@ -105,7 +105,7 @@ void ricerca_esami(int connectFD)
 
     if (count > 0)
     {
-        printf("sto inviando num righe\n");
+        printf("sto inviando num righe (sono nell'if di RICERCA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -131,7 +131,7 @@ void ricerca_esami(int connectFD)
     }
     else
     {
-        printf("sto inviando num righe\n");
+        printf("sto inviando num righe (sono nell'else di RICERCA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -171,10 +171,11 @@ void richiesta_prenotazione(int connectFD){
 
     int posizione_tupla = -1;
     int array_di_indici[10];
+    int countCopy =0;
     while (fgets(buffer, sizeof(buffer), esami))
     {
 
-        char buff_temp[1024];
+        char buff_temp[1024]; //potrebbe dover essere messa fuori dall'while
         strcpy(buff_temp, buffer);
 
         chiave = atoi(strtok(buffer, ","));
@@ -184,13 +185,14 @@ void richiesta_prenotazione(int connectFD){
             printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
             strcpy(matrice[count], buff_temp);
             count++;
-            array_di_indici[--count] = posizione_tupla;
+            countCopy = count -1;
+            array_di_indici[countCopy] = posizione_tupla;
         }
     }
-
+    printf("count e': %d\n", count);
     if (count > 0)
     {
-        printf("sto inviando num righe\n");
+        printf("sto inviando num righe (sono nell'if di RICHIESTA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -211,12 +213,14 @@ void richiesta_prenotazione(int connectFD){
         }
 
         // va fatta qui la parte in cui lo studente sceglie la data tramite una semplice "scelta"
-        int sceltaData;
+        int sceltaData = 0;
+        printf("sto per fare la read della scelta\n");
         if (read(connectFD, &sceltaData, sizeof(sceltaData)) < 0)
         {
             perror("sceltaData andata male");
             exit(-1);
         }
+        printf("ho ricevuto la scelta: %d\n", sceltaData);
 
         // ricevuta la scelta data
         char buffer_tupla[1024]; // per poter ricopiare la tupla aggiornata nel file
@@ -238,15 +242,17 @@ void richiesta_prenotazione(int connectFD){
     }
     else
     {
-        printf("sto inviando num righe\n");
+        printf("sto inviando num righe(sono nell'ELSE di RICHIESTA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
             perror("errore, non sono state inviate il num di righe\n");
             exit(1);
         }
+
         close(connectFD);
     }
+        fclose(esami);
 }
 
 int main(int argc, char **argv)

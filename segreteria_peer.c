@@ -171,13 +171,14 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
         perror("read non andata bene");
         exit(-1);
     }
+    printf("scelta ricevuta: %d\n",sceltaData);
     //mando la scelta della tupla sulla quale prenotarci su server
     if (write(socketClientFD, &sceltaData, sizeof(sceltaData)) < 0)
     {
         perror("Write non andata bene");
         exit(-1);
     }
-
+    printf("ho mandato la scelta\n");
     //read del numero progressivo di prenotazioni (è stato già incrementato su server)
 
     int numeroProgress;
@@ -186,6 +187,7 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
         perror("read non andata bene");
         exit(-1);
     }
+    printf("il num progressivo e': %d\n",numeroProgress);
 
     //mandiamo il numero progressivo a studente
     if (write(connectFD, &numeroProgress, sizeof(numeroProgress)) < 0)
