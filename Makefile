@@ -27,7 +27,7 @@ serverClang: server.c
 studenteClang: studente.c
 	clang studente.c -o studente
 
-peerClang: peer.c
+peerClang: segreteria_peer.c
 	clang peer.c -o peer
 
 clean: 
