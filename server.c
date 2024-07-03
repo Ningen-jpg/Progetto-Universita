@@ -59,8 +59,9 @@ int get_key(int connectFD)
     return key;
 }
 
-void ricerca_esami(int connectFD, char* buffer)
+void ricerca_esami(int connectFD)
 {
+    char buffer[1024];
     printf("\n==============================\n");
     FILE *esami = fopen("esami.csv", "r");
     if (esami == NULL)
@@ -141,7 +142,8 @@ void ricerca_esami(int connectFD, char* buffer)
     }
 }
 
-void richiesta_prenotazione(int connectFD,char* buffer){
+void richiesta_prenotazione(int connectFD){
+    char buffer[1024];
     printf("\n==============================\n");
     FILE *esami = fopen("esami.csv", "r+");
     if (esami == NULL)
@@ -249,7 +251,6 @@ void richiesta_prenotazione(int connectFD,char* buffer){
 
 int main(int argc, char **argv)
 { 
-    char buffer[1024];
     int serverfd;
     char * data;
     int connectFD;
@@ -270,12 +271,12 @@ int main(int argc, char **argv)
         {
             case 1:
             {
-                ricerca_esami(connectFD, buffer);
+                ricerca_esami(connectFD);
             }
             break;
             case 2:
             {
-                richiesta_prenotazione(connectFD, buffer);
+                richiesta_prenotazione(connectFD);
             }
             break;
             case 3:
