@@ -215,11 +215,16 @@ void richiesta_prenotazione(int connectFD){
         // va fatta qui la parte in cui lo studente sceglie la data tramite una semplice "scelta"
         int sceltaData = 0;
         printf("sto per fare la read della scelta\n");
-        if (read(connectFD, &sceltaData, sizeof(sceltaData)) < 0)
+        int byteletti = 0;
+        
+        if ((byteletti= read(connectFD, &sceltaData, sizeof(sceltaData))) < 0)
         {
+            printf("byte letti: %d\n",byteletti);
             perror("sceltaData andata male");
             exit(-1);
         }
+        printf("byte letti: %d\n",byteletti);
+
         printf("ho ricevuto la scelta: %d\n", sceltaData);
 
         // ricevuta la scelta data

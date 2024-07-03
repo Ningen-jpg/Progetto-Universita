@@ -173,11 +173,16 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
     }
     printf("scelta ricevuta: %d\n",sceltaData);
     //mando la scelta della tupla sulla quale prenotarci su server
-    if (write(socketClientFD, &sceltaData, sizeof(sceltaData)) < 0)
+    int bytescritti;
+    sleep(1);
+    if ((bytescritti= write(socketClientFD, &sceltaData, sizeof(sceltaData))) < 0)
     {
+        printf("byte scritti: %d\n",bytescritti);
         perror("Write non andata bene");
         exit(-1);
     }
+    printf("byte scritti: %d\n",bytescritti);
+
     printf("ho mandato la scelta\n");
     //read del numero progressivo di prenotazioni (è stato già incrementato su server)
 
