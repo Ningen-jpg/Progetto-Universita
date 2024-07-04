@@ -244,11 +244,13 @@ void richiesta_prenotazione(int connectFD){
         int prenotazione = atoi(campo + 1);
         prenotazione++;
         sprintf(campo+1,"%d\n",prenotazione);
+        printf("tupla modificata\n%s",matrice[sceltaData]);
         while (fgets(buffer, sizeof(buffer), esami))
         {
-            if(strstr(buffer,id)!= NULL && strstr(buffer,date)!= NULL)
+            if((strstr(buffer,id))!= NULL && (strstr(buffer,date))!= NULL)
             {
                 fputs(matrice[sceltaData],esami);
+                printf("modifica effettuata\n");
             }
         
             
