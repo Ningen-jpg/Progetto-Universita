@@ -22,7 +22,7 @@ int manage_exams(int connfd, int listenfd) // RICEVE CHIAVE che serve a recupera
     return buff;
 }
 
-void inviaInfo(struct sockaddr_in client, Esame tupla, int listenfd) //quando il peer funge da client
+void inviaInfo(struct sockaddr_in client, int listenfd) //quando il peer funge da client
 {
     //ora creiamo la socket che funge da client
 
@@ -136,6 +136,7 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
     }
     printf("ho mandato correttamente le tuple \n");
 }
+
 void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr,int choice) //richiesta prenotazione lato segreteria
 {
     ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice); //choice è la scelta dello switch
@@ -178,6 +179,32 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
         perror("Write non andata bene");
         exit(-1);
     }
+}
+
+void aggiunta_esame(int socketClientFD){
+    char ID[5]; //ID sempre di 4 caratteri
+    char nome[50]; //il nome dell'esame
+    char data[11]; //la data dell'esame, sempre di 10 caratteri
+    char num[4]="0"; //ipotizziamo che il numero di prenotati non superi il centinaio
+
+    char esame[1024];
+    printf("\nInserisci l'ID dell'esame: ");
+    scanf("%s",ID);
+    printf("\nInserisci il nome dell'esame: ");
+    scanf("%s",nome);
+    printf("\nInserisci la data dell'esame: ");
+    scanf("%s",data);
+
+    strcat(esame, ID);
+    strcat(esame, ",");
+    strcat(esame, nome);
+    strcat(esame, ",");
+    strcat(esame, data);
+    strcat(esame, ",");
+    strcat(esame,num);
+
+    printf("\nStringa esame completa %s",esame);
+    //fare strcpy
 }
 
 int main(int argc, char **argv){
@@ -323,8 +350,19 @@ int main(int argc, char **argv){
             fd_disponibili--;
 
             printf("Sono client\n");
-            if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0){ perror("socket client"); exit(-1); }
-            if(connect(socketClientFD, (struct sockaddr*)&client_addr, sizeof(client_addr))< 0){ perror("connect"); exit(-1); }//MI CONNETTO
+
+            if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
+            { 
+                perror("socket client"); 
+                exit(-1); 
+            }
+
+            if(connect(socketClientFD, (struct sockaddr*)&client_addr, sizeof(client_addr))< 0)
+            { 
+                perror("connect");
+                exit(-1); 
+            }//MI CONNETTO
+
             printf("Connesso ad un altro peer\n");
             
 	        if(read(socketClientFD, readBuf, sizeof(readBuf))>0){//LEGGO
@@ -332,7 +370,7 @@ int main(int argc, char **argv){
             }
             
             shutdown(socketClientFD, 2);
-            close(socketClientFD);//CHIUDO IL CANALE DI COMUNICAZIONE
+            close(socketClientFD); //CHIUDO IL CANALE DI COMUNICAZIONE
             
             fflush(stdin);//PULISCO IL BUFFER
 
