@@ -261,7 +261,7 @@ void richiesta_prenotazione(int connectFD){
             
 
         }
-        if (write(connectFD, &prenotazione, sizeof(int)) < 0)
+        if (write(connectFD, &prenotazione, sizeof(prenotazione)) < 0)
         {
             perror("errore, non è stato inviata la prenotazione\n");
             exit(1);
