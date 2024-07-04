@@ -184,7 +184,7 @@ void richiesta_prenotazione(int connectFD){
             count++;
         }
     }
-    fclose(esami);
+    
     printf("count e': %d\n", count);
     if (count > 0)
     {
@@ -260,6 +260,11 @@ void richiesta_prenotazione(int connectFD){
         
             
 
+        }
+        if (write(connectFD, &prenotazione, sizeof(int)) < 0)
+        {
+            perror("errore, non è stato inviata la prenotazione\n");
+            exit(1);
         }
         fclose(esami);
         close(connectFD);

@@ -7,20 +7,6 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
-typedef struct 
-{
-    unsigned int day;       //27-03-2020 la function atoi cambia la stringa in int
-    unsigned int month;
-    unsigned int year;    
-}Date;
-
-typedef struct{
-   int ID;
-   char nome[20];
-   Date data;
-   int numero_prenotati;
-}Esame;
-
 int manage_exams(int connfd, int listenfd) // RICEVE CHIAVE che serve a recuperare l'esame scelto
 {
     int buff;
