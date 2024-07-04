@@ -145,7 +145,7 @@ void ricerca_esami(int connectFD)
 void richiesta_prenotazione(int connectFD){
     char buffer[1024];
     printf("\n==============================\n");
-    FILE *esami = fopen("esami.csv", "r+");
+    FILE *esami = fopen("esami.csv", "r");
     if (esami == NULL)
     {
         printf("Error: Could not open the file\n");
@@ -169,9 +169,6 @@ void richiesta_prenotazione(int connectFD){
 
     char matrice[10][1024];
 
-    int posizione_tupla = -1;
-    int array_di_indici[10];
-    int countCopy =0;
     while (fgets(buffer, sizeof(buffer), esami))
     {
 
@@ -179,16 +176,15 @@ void richiesta_prenotazione(int connectFD){
         strcpy(buff_temp, buffer);
 
         chiave = atoi(strtok(buffer, ","));
-        posizione_tupla++;
+        
         if (chiave == key)
         {
             printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
             strcpy(matrice[count], buff_temp);
             count++;
-            countCopy = count -1;
-            array_di_indici[countCopy] = posizione_tupla;
         }
     }
+    fclose(esami);
     printf("count e': %d\n", count);
     if (count > 0)
     {
@@ -227,21 +223,36 @@ void richiesta_prenotazione(int connectFD){
 
         printf("ho ricevuto la scelta: %d\n", sceltaData);
 
+        char bufferMatrice[1024];
+        strcpy(bufferMatrice,matrice[sceltaData]);
+        char id[5]=strtok(bufferMatrice,',');
+        char date[12];
+        date=strtok(NULL,',');
+        date = strtok(NULL,','); //abbiamo messo la data
+
         // ricevuta la scelta data
-        char buffer_tupla[1024]; // per poter ricopiare la tupla aggiornata nel file
+        FILE *esami = fopen("esami.csv", "r+");
+        if (esami == NULL)
+        {
+            printf("Error: Could not open the file\n");
+            exit(-1);
+        }
+        printf("File opened in lettura scrittura\n");
         sceltaData--;
-        //debug
-        printf("%s",matrice[sceltaData]);
-        char *campo = strrchr(matrice[sceltaData], ',');
+        char *campo = strrchr(matrice[sceltaData],',');
         int prenotazione = atoi(campo + 1);
         prenotazione++;
-        sprintf(campo + 1, "%d\n", prenotazione); // aggiorniamo la prenotazione
-        //debug
-        printf("%s",matrice[sceltaData]);
-        // Aggiorna il file con la nuova prenotazione
-        fseek(esami, array_di_indici[sceltaData]+1, SEEK_SET);
-        fputs(matrice[sceltaData], esami);
+        sprintf(campo+1,"%d\n",prenotazione);
+        while (fgets(buffer, sizeof(buffer), esami))
+        {
+            if(strstr(buffer,id)!= NULL && strstr(buffer,data)!= NULL)
+            {
+                fputs(matrice[sceltaData],esami);
+            }
+        
+            
 
+        }
         fclose(esami);
         close(connectFD);
     }
