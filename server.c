@@ -264,12 +264,12 @@ int main(int argc, char **argv)
 { 
     int serverfd;
     char * data;
-    int * connectFD;
+    int connectFD;
     int scelta;
     
     while(1){
-        crea_connessione(connectFD);
-        if(read(*connectFD,&scelta, sizeof(scelta))<0)
+        crea_connessione(&connectFD);
+        if(read(connectFD,&scelta, sizeof(scelta))<0)
         {
             perror("read non andata bene");
             exit(-1);
@@ -282,12 +282,12 @@ int main(int argc, char **argv)
         {
             case 1:
             {
-                ricerca_esami(*connectFD);
+                ricerca_esami(connectFD);
             }
             break;
             case 2:
             {
-                richiesta_prenotazione(*connectFD);
+                richiesta_prenotazione(connectFD);
             }
             break;
             case 3:
