@@ -223,14 +223,7 @@ void richiesta_prenotazione(int connectFD){
 
         printf("ho ricevuto la scelta: %d\n", sceltaData);
 
-        char bufferMatrice[1024];
-        strcpy(bufferMatrice,matrice[sceltaData]);
-        char *id;
-        id=strtok(bufferMatrice,",");
-        char *date;
-        date=strtok(NULL,",");
-        date = strtok(NULL,","); //abbiamo messo la data
-
+        
         // ricevuta la scelta data
         FILE *esami = fopen("esami.csv", "r+");
         if (esami == NULL)
@@ -240,15 +233,27 @@ void richiesta_prenotazione(int connectFD){
         }
         printf("File opened in lettura scrittura\n");
         sceltaData--;
+
         char *campo = strrchr(matrice[sceltaData],',');
         int prenotazione = atoi(campo + 1);
         prenotazione++;
-        sprintf(campo+1,"%d\n",prenotazione);
+        sprintf(campo+1,"%d\n",prenotazione);//modifica fatta al numero prenotati
+
+        char bufferMatrice[1024];
+        strcpy(bufferMatrice,matrice[sceltaData]);
+        printf("\nPRIMA matrice[sceltadata]%s",matrice[sceltaData]);
+        char *id;
+        id=strtok(bufferMatrice,",");
+        char *date;
+        date=strtok(NULL,",");
+        date = strtok(NULL,","); //abbiamo messo la data
+        printf("\nDOPO matrice[sceltadata]%s",bufferMatrice);
         printf("tupla modificata\n%s",matrice[sceltaData]);
         while (fgets(buffer, sizeof(buffer), esami))
         {
             if((strstr(buffer,id))!= NULL && (strstr(buffer,date))!= NULL)
             {
+                fseek(esami,-strlen(buffer),SEEK_CUR);
                 fputs(matrice[sceltaData],esami);
                 printf("modifica effettuata\n");
             }
