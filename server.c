@@ -225,10 +225,11 @@ void richiesta_prenotazione(int connectFD){
 
         char bufferMatrice[1024];
         strcpy(bufferMatrice,matrice[sceltaData]);
-        char id[5]=strtok(bufferMatrice,',');
-        char date[12];
-        date=strtok(NULL,',');
-        date = strtok(NULL,','); //abbiamo messo la data
+        char *id;
+        id=strtok(bufferMatrice,",");
+        char *date;
+        date=strtok(NULL,",");
+        date = strtok(NULL,","); //abbiamo messo la data
 
         // ricevuta la scelta data
         FILE *esami = fopen("esami.csv", "r+");
@@ -245,7 +246,7 @@ void richiesta_prenotazione(int connectFD){
         sprintf(campo+1,"%d\n",prenotazione);
         while (fgets(buffer, sizeof(buffer), esami))
         {
-            if(strstr(buffer,id)!= NULL && strstr(buffer,data)!= NULL)
+            if(strstr(buffer,id)!= NULL && strstr(buffer,date)!= NULL)
             {
                 fputs(matrice[sceltaData],esami);
             }
