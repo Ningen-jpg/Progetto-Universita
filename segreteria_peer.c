@@ -78,7 +78,7 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
     }
     printf("il numero di righe prese e': %d\n", righe);
     // allochiamo la matrice dinamica
-    char tuple[10][1024];
+    char tuple[50][1024];
 
     printf("sto leggendo tuple da server\n");
     // leggiamo le tuple da server
@@ -287,14 +287,14 @@ int main(int argc, char **argv){
         }
 
         printf("maxfd attuale=%d\n", maxfd);
-        fd_disponibili=select(maxfd+1, &readSet, &writeSet, NULL, NULL); //maxfx + 2 perchè deve gestire contemporanemante 2 client
+        fd_disponibili=select(maxfd+1, &readSet, &writeSet, NULL, NULL); //maxfx + 2 perchè deve gestire contemporanemante 1 client e 1 server
         fd_disponibili = fd_disponibili+1;
         printf("FD Disponibili=%d\n", fd_disponibili);
         sleep(1);
 
     
         //SE HO UN NUOVO CLIENT CONNESSO (PARTE SERVER)
-        if(FD_ISSET(listenFD, &readSet)){
+        if(FD_ISSET(listenFD, &readSet)){ //qui e
             printf("---|Nuovo client connesso");
             //siamo connessi con il cliente
             connectFD=accept(listenFD, NULL, NULL);
@@ -361,15 +361,16 @@ int main(int argc, char **argv){
         i=0;
 
         //SE PREMO INVIO DIVENTO CLIENT
-        if(FD_ISSET(STDIN_FILENO, &readSet)){
+        if(FD_ISSET(STDIN_FILENO, &readSet)){ //rimane in ascolto nel caso il peer voglia diventare client
             
-            read(STDIN_FILENO, readBuf, 10);//LEGGO LO STDIN PERCHE' IL SEMPLICE FLUSH DEL BUFFER NON VA PURTROPPO...
+            read(STDIN_FILENO, readBuf, 10);//legge qualsiasi input da tastiera
 
             fd_disponibili--;
 
             printf("Sono client\n");
             printf("=======================\n");
             
+            //
             if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
             { 
                 perror("socket client"); 

@@ -70,6 +70,7 @@ void sendScelta(int fd, int scelta)
   }
 }
 
+//scelto 1
 void ricerca_esami(int fd, int scelta, int argc, char **argv)
 {
   sendScelta(fd, scelta);
@@ -114,6 +115,7 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
   }
 }
 
+//scelgo 2
 void richiesta_prenotazione(int fd,int scelta, int argc,char **argv){
   ricerca_esami(fd,scelta,argc,argv);
   printf("\nPer quale data vuoi prenotarti?: ");

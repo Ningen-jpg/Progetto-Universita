@@ -85,7 +85,7 @@ void ricerca_esami(int connectFD)
     int count = 0; // per scorrere le righe della matrice, indica anche il num di tuple trovate
     int chiave;    // per ottenere il valore intero con atoi
 
-    char matrice[10][1024];
+    char matrice[50][1024];
 
     while (fgets(buffer, sizeof(buffer), esami))
     {
@@ -167,7 +167,7 @@ void richiesta_prenotazione(int connectFD){
     int count = 0; // per scorrere le righe della matrice, indica anche il num di tuple trovate
     int chiave;    // per ottenere il valore intero con atoi
 
-    char matrice[10][1024];
+    char matrice[50][1024];
 
     while (fgets(buffer, sizeof(buffer), esami))
     {
@@ -296,7 +296,7 @@ void aggiunta_esame(int connectFD){
         exit(-1);
     }
     printf("File opened\n");
-    fseek(esami, 0, SEEK_END);
+    fseek(esami, 1, SEEK_END);
     fputs("\n", esami);
     fputs(stringa, esami);
     fclose(esami);
