@@ -182,16 +182,26 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
 }
 
 void aggiunta_esame(int socketClientFD){
+    int scelta=3;
+    //comunico al server che voglio aggiungere un esame
+    if (write(socketClientFD, &scelta, sizeof(scelta)) < 0)
+    {
+        perror("errore: non e' stata inviata la scelta");
+        exit(1);
+    }
     char ID[5]; //ID sempre di 4 caratteri
     char nome[50]; //il nome dell'esame
     char data[11]; //la data dell'esame, sempre di 10 caratteri
     char num[4]="0"; //ipotizziamo che il numero di prenotati non superi il centinaio
 
-    char esame[1024];
+    char esame[1024]=""; //inizializzo la stringa
+
     printf("\nInserisci l'ID dell'esame: ");
     scanf("%s",ID);
+    getchar();
     printf("\nInserisci il nome dell'esame: ");
-    scanf("%s",nome);
+    fgets(nome, sizeof(nome), stdin);
+    nome[strcspn(nome, "\n")] = 0; // Rimuove il newline alla fine
     printf("\nInserisci la data dell'esame: ");
     scanf("%s",data);
 
@@ -203,7 +213,15 @@ void aggiunta_esame(int socketClientFD){
     strcat(esame, ",");
     strcat(esame,num);
 
-    printf("\nStringa esame completa %s",esame);
+    printf("\nStringa esame completa:\n %s\n",esame);
+    //invio la stringa al server
+    if (write(socketClientFD, &esame, sizeof(esame)) < 0)
+    {
+        perror("errore: non e' stata inviata la stringa concatenata");
+        exit(1);
+    }
+    printf("\nstringa inviata. Attendo conferma..\n");
+
     //fare strcpy
 }
 
@@ -350,7 +368,8 @@ int main(int argc, char **argv){
             fd_disponibili--;
 
             printf("Sono client\n");
-
+            printf("=======================\n");
+            
             if( (socketClientFD=socket(AF_INET, SOCK_STREAM, 0))<0)
             { 
                 perror("socket client"); 
@@ -363,9 +382,13 @@ int main(int argc, char **argv){
                 exit(-1); 
             }//MI CONNETTO
 
-            printf("Connesso ad un altro peer\n");
-            
-	        if(read(socketClientFD, readBuf, sizeof(readBuf))>0){//LEGGO
+            printf("Connesso con il server\n");
+
+            //Aggiunta esame
+            aggiunta_esame(socketClientFD);
+
+	        if(read(socketClientFD, readBuf, sizeof(readBuf))>0) //LEGGO
+            { 
                 fputs(readBuf, stdout);
             }
             

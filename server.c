@@ -257,9 +257,6 @@ void richiesta_prenotazione(int connectFD){
                 fputs(matrice[sceltaData],esami);
                 printf("modifica effettuata\n");
             }
-        
-            
-
         }
         if (write(connectFD, &prenotazione, sizeof(prenotazione)) < 0)
         {
@@ -282,6 +279,34 @@ void richiesta_prenotazione(int connectFD){
         close(connectFD);
     }
         fclose(esami);
+}
+
+void aggiunta_esame(int connectFD){
+    char stringa[1024] = "";
+    if (read(connectFD, &stringa, sizeof(stringa)) < 0)
+    {
+        perror("errore: non e' stata letta la stringa concatenata");
+        exit(1);
+    }
+    printf("\nStringa concatenata:\n%s", stringa);
+    FILE *esami = fopen("esami.csv", "a");
+    if (esami == NULL)
+    {
+        printf("Error: Could not open the file\n");
+        exit(-1);
+    }
+    printf("File opened\n");
+    fseek(esami, 0, SEEK_END);
+    fputs("\n", esami);
+    fputs(stringa, esami);
+    fclose(esami);
+    char messaggio[16] = "Esame aggiunto!";
+    if (write(connectFD, &messaggio, sizeof(messaggio)) < 0)
+    {
+        perror("errore: non e' stato inviato il messaggio");
+        exit(1);
+    }
+    printf("\nEsame aggiunto\n");
 }
 
 int main(int argc, char **argv)
@@ -317,6 +342,7 @@ int main(int argc, char **argv)
             case 3:
             {
                 //gestire aggiunta esami sotto richiesta di segreteria
+                aggiunta_esame(connectFD);
             }
             break;
         }
