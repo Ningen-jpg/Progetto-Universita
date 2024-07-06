@@ -1,3 +1,11 @@
+/*
+Il server viene gestito dalla segreteria, attraverso il quale gestiamo gli esami universitari.
+Le operazioni che svolge il server sono:
+- Aggiunge nuovi esami, salvati in un file csv
+- Effettua le prenotazioni degli esami per gli studenti. 
+  Ad ogni richiesta di prenotazione viene inviato il relativo numero di prenotazione progressivo.
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,8 +18,8 @@
 //nuova, cambia solo che c'è la setsockopt in più, il resto è identico
 void crea_connessione(int * connectFD)
 {
-    int listenFD;
-    struct sockaddr_in server;
+    int listenFD; // File descriptor per la connessione
+    struct sockaddr_in server; // sarà utilizzata per memorizzare l'indirizzo del server.
 
     //creiamo la socket
     if ( ( listenFD = socket(AF_INET, SOCK_STREAM, 0) ) < 0 ) {
@@ -20,15 +28,21 @@ void crea_connessione(int * connectFD)
     }
 
     // Abilita l'opzione SO_REUSEADDR
-    int opt = 1;
-    if (setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0) {
         perror("setsockopt");
         exit(1);
     }
+    // Imposta l'opzione SO_REUSEPORT sul socket listenFD.
+    // SO_REUSEPORT consente di riutilizzare immediatamente un indirizzo/porta locale, anche se è già in uso.
+    // &(int){ 1 } è una sintassi C che crea un valore intero temporaneo pari a 1 e ne prende l'indirizzo.
+    // sizeof(int) indica la dimensione del dato da passare a setsockopt, che in questo caso è un intero.
 
     server.sin_family      = AF_INET;
-    server.sin_port        = htons(1025); //1025 porta server
+    server.sin_port        = htons(1025); // 1025 porta server
     server.sin_addr.s_addr = htonl(INADDR_ANY);
+    // Imposta l'indirizzo IP nella struttura 'server' per accettare connessioni su tutte le interfacce di rete disponibili.
+    // htonl() converte il valore da ordine di host a ordine di rete, se necessario.
+    // INADDR_ANY è un valore speciale che indica che il server è disposto ad accettare connessioni su qualsiasi indirizzo IP associato alla macchina.
 
     if ( bind(listenFD, (struct sockaddr *) &server, sizeof(server)) < 0 ) {
         perror("bind");
@@ -44,7 +58,7 @@ void crea_connessione(int * connectFD)
 
     *connectFD = accept(listenFD, NULL, NULL);
     // printf("ho accettato con accept\n");
-    //printf("il fd e : %d\n", connectFD);
+
     close(listenFD);
 }
 
@@ -66,10 +80,9 @@ void ricerca_esami(int connectFD)
     FILE *esami = fopen("esami.csv", "r");
     if (esami == NULL)
     {
-        printf("Error: Could not open the file\n");
+        printf("Errore: il file non è stato aperto correttamente.\n");
         exit(-1);
     }
-    printf("File opened\n");
 
     // leggiamo la prima riga
     fgets(buffer, sizeof(buffer), esami);
@@ -78,21 +91,20 @@ void ricerca_esami(int connectFD)
     //crea_connessione(&connectFD);
     int key = get_key(connectFD);
 
-    printf("inizia il while qui\n");
-
     // inizializziamo matrice
     int i = 0;
     int count = 0; // per scorrere le righe della matrice, indica anche il num di tuple trovate
     int chiave;    // per ottenere il valore intero con atoi
 
-    char matrice[50][1024];
+    char matrice[50][1024]; // Matrice per le tuple
 
     while (fgets(buffer, sizeof(buffer), esami))
     {
         char buff_temp[1024];
         strcpy(buff_temp, buffer);
 
-        chiave = atoi(strtok(buffer, ","));
+        chiave = atoi(strtok(buffer, ",")); // funzione strtok per la divisione della stringa in token da utilizzare per le operazioni di ricerca
+        // atoi converte da char ad integer
         if (chiave == key)
         {
             printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
@@ -103,9 +115,8 @@ void ricerca_esami(int connectFD)
 
     fclose(esami);
 
-    if (count > 0)
+    if (count > 0) // verifico se sono state trovate delle tuple
     {
-        printf("sto inviando num righe (sono nell'if di RICERCA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -113,9 +124,8 @@ void ricerca_esami(int connectFD)
             exit(1);
         }
 
-        printf("sto inviando le tuple..\n");
         // invia tuple a segreteria
-        int bytesc = 0;
+        int bytesc = 0; // debug
         for (int i = 0; i < count; i++)
         {
             if ((bytesc = write(connectFD, matrice[i], sizeof(matrice[i]))) < 0)
@@ -124,14 +134,10 @@ void ricerca_esami(int connectFD)
                 exit(1);
             }
         }
-
-        printf("byte scritti: %d\n", bytesc);
-
         close(connectFD);
     }
     else
     {
-        printf("sto inviando num righe (sono nell'else di RICERCA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -151,7 +157,7 @@ void richiesta_prenotazione(int connectFD){
         printf("Error: Could not open the file\n");
         exit(-1);
     }
-    printf("File opened\n");
+    printf("File aperto\n");
 
     // leggiamo la prima riga
     fgets(buffer, sizeof(buffer), esami);
@@ -159,8 +165,6 @@ void richiesta_prenotazione(int connectFD){
 
     //crea_connessione(&connectFD);
     int key = get_key(connectFD);
-
-    printf("inizia il while qui\n");
 
     // inizializziamo matrice
     int i = 0;
@@ -171,12 +175,9 @@ void richiesta_prenotazione(int connectFD){
 
     while (fgets(buffer, sizeof(buffer), esami))
     {
-
         char buff_temp[1024]; //potrebbe dover essere messa fuori dall'while
         strcpy(buff_temp, buffer);
-
         chiave = atoi(strtok(buffer, ","));
-        
         if (chiave == key)
         {
             printf("%d° riga trovata :\n%s\n", count + 1, buff_temp);
@@ -185,10 +186,8 @@ void richiesta_prenotazione(int connectFD){
         }
     }
     
-    printf("count e': %d\n", count);
     if (count > 0)
     {
-        printf("sto inviando num righe (sono nell'if di RICHIESTA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
@@ -196,9 +195,8 @@ void richiesta_prenotazione(int connectFD){
             exit(1);
         }
 
-        printf("sto inviando le tuple..\n");
         // invia tuple a segreteria
-        int bytesc = 0;
+        int bytesc = 0; //debug
         for (int i = 0; i < count; i++)
         {
             if ((bytesc = write(connectFD, matrice[i], sizeof(matrice[i]))) < 0)
@@ -208,22 +206,17 @@ void richiesta_prenotazione(int connectFD){
             }
         }
 
-        // va fatta qui la parte in cui lo studente sceglie la data tramite una semplice "scelta"
+        // Il server riceve la scelta della data, che servirà per modificare la tupla corrispondente
         int sceltaData = 0;
-        printf("sto per fare la read della scelta\n");
-        int byteletti = 0;
+        
+        int byteletti = 0; //debug
 
         if ((byteletti= read(connectFD, &sceltaData, sizeof(sceltaData))) < 0)
         {
-            printf("byte letti: %d\n",byteletti);
-            perror("sceltaData andata male");
+            perror("non è stata correttamente letta la scelta della data");
             exit(-1);
         }
-        printf("byte letti: %d\n",byteletti);
 
-        printf("ho ricevuto la scelta: %d\n", sceltaData);
-
-        
         // ricevuta la scelta data
         FILE *esami = fopen("esami.csv", "r+");
         if (esami == NULL)
@@ -231,24 +224,23 @@ void richiesta_prenotazione(int connectFD){
             printf("Error: Could not open the file\n");
             exit(-1);
         }
-        printf("File opened in lettura scrittura\n");
+        printf("File aperto in lettura scrittura\n");
         sceltaData--;
 
         char *campo = strrchr(matrice[sceltaData],',');
         int prenotazione = atoi(campo + 1);
         prenotazione++;
-        sprintf(campo+1,"%d\n",prenotazione);//modifica fatta al numero prenotati
+        sprintf(campo+1,"%d",prenotazione); // modifica fatta al numero prenotati
 
         char bufferMatrice[1024];
         strcpy(bufferMatrice,matrice[sceltaData]);
-        printf("\nPRIMA matrice[sceltadata]%s",matrice[sceltaData]);
+        
         char *id;
-        id=strtok(bufferMatrice,",");
+        id = strtok(bufferMatrice,","); // recuperiamo l'ID
         char *date;
-        date=strtok(NULL,",");
-        date = strtok(NULL,","); //abbiamo messo la data
-        printf("\nDOPO matrice[sceltadata]%s",bufferMatrice);
-        printf("tupla modificata\n%s",matrice[sceltaData]);
+        date = strtok(NULL,",");
+        date = strtok(NULL,","); // recuperiamo la data
+        
         while (fgets(buffer, sizeof(buffer), esami))
         {
             if((strstr(buffer,id))!= NULL && (strstr(buffer,date))!= NULL)
@@ -268,17 +260,15 @@ void richiesta_prenotazione(int connectFD){
     }
     else
     {
-        printf("sto inviando num righe(sono nell'ELSE di RICHIESTA)\n");
         // invia num righe
         if (write(connectFD, &count, sizeof(int)) < 0)
         {
             perror("errore, non sono state inviate il num di righe\n");
             exit(1);
         }
-
         close(connectFD);
     }
-        fclose(esami);
+    fclose(esami);
 }
 
 void aggiunta_esame(int connectFD){
@@ -288,15 +278,15 @@ void aggiunta_esame(int connectFD){
         perror("errore: non e' stata letta la stringa concatenata");
         exit(1);
     }
-    printf("\nStringa concatenata:\n%s", stringa);
+
     FILE *esami = fopen("esami.csv", "a");
     if (esami == NULL)
     {
-        printf("Error: Could not open the file\n");
+        printf("Errore: il file non è stato aperto correttamente.\n");
         exit(-1);
     }
-    printf("File opened\n");
-    fseek(esami, 1, SEEK_END);
+    printf("File aperto\n");
+    fseek(esami, 0, SEEK_END);
     fputs("\n", esami);
     fputs(stringa, esami);
     fclose(esami);
@@ -324,9 +314,6 @@ int main(int argc, char **argv)
             exit(-1);
         }
 
-        // debug
-        printf("scelta per lo switch:%d", scelta);
-
         switch(scelta)
         {
             case 1:
@@ -341,7 +328,6 @@ int main(int argc, char **argv)
             break;
             case 3:
             {
-                //gestire aggiunta esami sotto richiesta di segreteria
                 aggiunta_esame(connectFD);
             }
             break;

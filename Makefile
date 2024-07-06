@@ -28,7 +28,7 @@ studenteClang: studente.c
 	clang studente.c -o studente
 
 peerClang: segreteria_peer.c
-	clang peer.c -o peer
+	clang segreteria_peer.c -o peer
 
 clean: 
 	@echo "Sto pulendo..."

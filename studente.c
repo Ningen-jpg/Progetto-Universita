@@ -1,5 +1,9 @@
-//Chiede alla segreteria se ci siano esami disponibili un corso
-//Invia una richiesta di prenotazione di un esame alla segreteria
+/*
+Lo studente rappresenta il nostro client in questa architettura.
+Ogni volta che uno studente si collega alla segreteria, può scegliere di effettuare due operazioni:
+- Può chiedere alla segreteria se ci sono esami disponibili per un corso.
+- Inviare una richiesta di prenotazione di un esame alla segreteria.
+*/
 
 #include <netdb.h>
 #include <stdio.h>
@@ -11,57 +15,54 @@
 #include <string.h>
 #include <errno.h>
 
-//la close del socket và fatta solo una volta che a studente vengono inviati i dati (le date di esame) che stava cercando
-
 int creaSocket(int argc, char ** argv)
 {
-  int sockfd;
-  struct sockaddr_in servaddr;
+  int sockfd; // File descriptor per la creazione della socket
+  struct sockaddr_in servaddr; // Dichiarazione della struttura per memorizzare l'indirizzo del server (IPv4)
 
   if (argc != 2) {
-    fprintf(stderr,"Devi inserire anche l'indirizzo: %s <IPaddress>\n",argv[0]);
+    fprintf(stderr,"Devi inserire anche l'indirizzo: %s <IPaddress>\n",argv[0]); // Controllo se ho inserito l'indirizzo di loopback
     exit (1);
   }
 
-  if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  // Creazione della socket
     fprintf(stderr,"errore creazione della socket\n");
     exit (1);
   }
 
-  servaddr.sin_family = AF_INET;
+  servaddr.sin_family = AF_INET; // Imposta la famiglia di indirizzi su IPv4
   servaddr.sin_port   = htons(1024); //MI STO CONNETTENDO A SEGRETERIA
 
-  if (inet_pton(AF_INET, argv[1], &servaddr.sin_addr) < 0) {
+  if (inet_pton(AF_INET, argv[1], &servaddr.sin_addr) < 0) { // Converte l'indirizzo IP da testo a binario e lo assegna a sin_addr; verifica se la conversione fallisce
     fprintf(stderr,"inet_pton error for %s\n", argv[1]);
     exit (1);
   }
 
-  if (connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
+  if (connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) { // Tenta di stabilire una connessione al server specificato (segreteria); verifica se la connessione fallisce
     fprintf(stderr,"Errore di connessione\n");
     exit(1);
   }
-  printf("Connessione avvenuta con la segreteria.\n");
 
-  //ritorna il file descriptor della connessione avvenuta con server
+  // Ritorna il file descriptor della connessione avvenuta con server
   return sockfd;
-  //ora siamo connessi con la segreteria 
+  // Ora siamo connessi con la segreteria 
 }
 
-void sendID(int fd, int argc, char **argv) {
+void sendID(int fd, int argc, char **argv) { // Funzione utilizzata per l'invio dell'ID dell'esame da cercare
   int id;
   printf("Inserire ID d'esame da cercare:\t");
   scanf("%d", &id);
 
   // Invia l'ID alla segreteria
   
-  if (write(fd, &id, sizeof(id)) != sizeof(id)) {
+  if (write(fd, &id, sizeof(id)) != sizeof(id)) { // Scrive i dati contenuti in 'id' nel file descriptor 'fd';
     perror("write");
     exit(1);
   }
   printf("ID inviato\n");
 }
 
-void sendScelta(int fd, int scelta)
+void sendScelta(int fd, int scelta) // Funzione utilizzata per l'invio della scelta relativo allo switch-case
 {
   if(write(fd, &scelta, sizeof(scelta))  != sizeof(scelta))
   {
@@ -71,7 +72,7 @@ void sendScelta(int fd, int scelta)
 }
 
 //scelto 1
-void ricerca_esami(int fd, int scelta, int argc, char **argv)
+int ricerca_esami(int fd, int scelta, int argc, char **argv)
 {
   sendScelta(fd, scelta);
   sendID(fd, argc, argv);
@@ -83,11 +84,10 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
     perror("errore: non è stato ricevuto il numero di righe\n");
     exit(1);
   }
-  printf("il num di righe arrivate e' : %d\n", num_righe);
+  
   if (num_righe > 0)
   {
     // matrice per le eventuali tuple trovate
-
     char tuple[num_righe][1024];
     printf("==================\n");
 
@@ -102,7 +102,7 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
     }
 
     printf("Tuple trovate:\n");
-    int c=1;
+    int c=1; // Variabile contatore per listare le tuple trovate
     for (int i = 0; i < num_righe; i++)
     {
       printf("%d° %s\n",c, tuple[i]);
@@ -111,34 +111,39 @@ void ricerca_esami(int fd, int scelta, int argc, char **argv)
   }
   else
   {
-    printf("Non ci sono esami con questo ID.\n");
+    printf("\nNon ci sono esami con questo ID.\n");
   }
+  return num_righe;
 }
 
 //scelgo 2
 void richiesta_prenotazione(int fd,int scelta, int argc,char **argv){
-  ricerca_esami(fd,scelta,argc,argv);
-  printf("\nPer quale data vuoi prenotarti?: ");
-  int sceltadata;
-  scanf("%d",&sceltadata);
-  sendScelta(fd,sceltadata);
-  printf("sono dopo sendScelta\n");
-  int numero_progressivo;
-  if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
+  int num_righe = ricerca_esami(fd, scelta, argc, argv);
+  if (num_righe > 0)
   {
-    perror("errore: non è stato ricevuto il numero progressivo\n");
-    exit(1);
+    printf("\nPer quale data vuoi prenotarti?: ");
+    int sceltadata;
+    scanf("%d", &sceltadata);
+    sendScelta(fd, sceltadata);
+    int numero_progressivo;
+    if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
+    {
+      perror("errore: non è stato ricevuto il numero progressivo\n");
+      exit(1);
+    }
+    printf("\nPrenotazione effettuata!\n");
+    printf("\nIl tuo numero di prenotazione e' : %d\n", numero_progressivo);
   }
-  printf("Il tuo numero di prenotazione e' : %d\n", numero_progressivo);
+  else{
+    printf("Non puoi prenotarti!\n\n");
+  }
 }
 
 
-int main(int argc, char **argv){
-  
-  // char buffer[INET6_ADDRSTRLEN];
- 
+int main(int argc, char **argv)
+{ 
   int scelta= 0;
-  int fd;
+  int fd; // File descriptor per la creazione della socket
   while (1)
   {
     printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\n3) Interrompi la comunicazione\nScegli: ");
@@ -148,14 +153,16 @@ int main(int argc, char **argv){
     {
       case 1:  //ricerca esami
       {
+        printf("Connessione avvenuta con la segreteria.\n");
         ricerca_esami(fd,scelta,argc,argv);
-      } break;
-      
-      case 2: 
+      }
+      break;
+      case 2:
+        printf("Connessione avvenuta con la segreteria.\n");
         richiesta_prenotazione(fd,scelta,argc,argv);
         break;
       case 3: 
-        //lo studente interrompe la connessione con la segreteria
+        printf("Lo studente interrompe la connessione con la segreteria.\n");
         sendScelta(fd,scelta);
         close(fd);
         exit(0);
@@ -164,7 +171,4 @@ int main(int argc, char **argv){
         break;
     }
   }
- 
- //fine test
-
 }
