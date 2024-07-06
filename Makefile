@@ -1,4 +1,3 @@
-CC = clang
 all: server segreteria studente 
 
 clang: serverClang studenteClang peerClang

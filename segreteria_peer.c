@@ -162,13 +162,16 @@ void aggiunta_esame(int socketClientFD){
     char esame[1024]=""; //inizializzo la stringa
 
     printf("\nInserisci l'ID dell'esame: ");
+    fflush(stdin);
     scanf("%4s",ID);
     getchar();
     printf("\nInserisci il nome dell'esame: ");
     fgets(nome, sizeof(nome), stdin);  // Utilizzo la fgets per avere la possibilità di inserire anche gli spazi
     nome[strcspn(nome, "\n")] = 0; // Rimuove il newline alla fine
     printf("\nInserisci la data dell'esame: ");
+
     scanf("%10s",data);
+   // data[strcspn(data, "\n")] = 0;//rimuove il newline dopo la data
 
     strcat(esame, ID);
     strcat(esame, ",");
@@ -178,6 +181,7 @@ void aggiunta_esame(int socketClientFD){
     strcat(esame, ",");
     strcat(esame,num);
 
+    esame[strcspn(esame,"\n")]= 0;//rimuove il newline in più
     //invio la stringa al server
     if (write(socketClientFD, &esame, sizeof(esame)) < 0)
     {
@@ -276,7 +280,6 @@ int main(int argc, char **argv){
 
         fd_disponibili=select(maxfd+1, &readSet, &writeSet, NULL, NULL); //maxfx + 2 perchè deve gestire contemporanemante 1 client e 1 server
         fd_disponibili = fd_disponibili+1;
-        //sleep(1);
 
         // SE HO UN NUOVO CLIENT CONNESSO (PARTE SERVER)
         if (FD_ISSET(listenFD, &readSet)) // verifica se un determinato file descriptor è presente in un insieme di descrittori di file
@@ -302,23 +305,28 @@ int main(int argc, char **argv){
                 fprintf(stderr, "Errore di connessione\n");
                 exit(1);
             }
+
             printf("\n\n---|Connessione avvenuta con il Server Universitario.\n");
+
             switch (choice)
             {
-            case 1:
-            {
-                ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice);
-            }
-            break;
-            case 2:
-            {
-                richiesta_prenotazione(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice);
-            }
-            break;
-            case 3: // lo studente ha deciso di chiudere la connessione con segreteria
-            {
-                close(connectFD);
-            }
+                case 1:
+                {
+                    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice);
+                }
+                break;
+                case 2:
+                {
+                    richiesta_prenotazione(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice);
+                }
+                break;
+                case 3: // lo studente ha deciso di chiudere la connessione con segreteria
+                {
+                    close(connectFD);
+                    close(socketClientFD);
+                    close(listenFD);
+                }
+                break;
             }
 
             fd_connectedClient[connectFD] = 1; // LO METTO NELLA LISTA DEI CLIENT CONNESSI
@@ -334,7 +342,8 @@ int main(int argc, char **argv){
 
         // SE PREMO INVIO DIVENTO CLIENT
         if(FD_ISSET(STDIN_FILENO, &readSet)){ //rimane in ascolto nel caso il peer voglia diventare client
-            
+            fflush(stdin);
+
             read(STDIN_FILENO, readBuf, 10); //legge qualsiasi input da tastiera
 
             fd_disponibili--;
