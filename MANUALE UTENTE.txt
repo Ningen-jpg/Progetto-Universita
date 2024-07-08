@@ -1,0 +1,26 @@
+********************************************************************
+PER LA COMPILAZIONE E' STATO REALIZZATO UN APPOSITO MAKEFILE,
+CHE COMPILA TUTTI I FILE C PRESENTI NEL PROGETTO
+GENERANDO I RELATIVI FILE OGGETTO.
+
+make
+
+********************************************************************
+FATTO QUESTO, APRIRE TRE TERMINALI E LANCIARE IN ORDINE:
+
+./server
+./peer
+./studente 127.0.0.1
+
+********************************************************************
+APPARIRANNO LE OPERAZIONI SUL TERMINALE DELLO STUDENTE.
+
+PRIMA DI SCEGLIERE UNA DELLE OPERAZIONI LATO STUDENTE, E' POSSIBILE EFFETTUARE L'OPERAZIONE DI
+AGGIUNTA_ESAMI() DALLA SEGRETERIA, PREMENDO INVIO SUL SUO TERMINALE.
+
+********************************************************************
+E' POSSIBILE PULIRE I FILE OGGETTO CON IL COMANDO
+
+make clean
+
+********************************************************************
