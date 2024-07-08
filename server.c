@@ -134,7 +134,6 @@ void ricerca_esami(int connectFD)
                 exit(1);
             }
         }
-        close(connectFD);
     }
     else
     {
@@ -144,7 +143,6 @@ void ricerca_esami(int connectFD)
             perror("errore, non sono state inviate il num di righe\n");
             exit(1);
         }
-        close(connectFD);
     }
 }
 
@@ -255,8 +253,6 @@ void richiesta_prenotazione(int connectFD){
             perror("errore, non è stato inviata la prenotazione\n");
             exit(1);
         }
-        fclose(esami);
-        close(connectFD);
     }
     else
     {
@@ -266,7 +262,6 @@ void richiesta_prenotazione(int connectFD){
             perror("errore, non sono state inviate il num di righe\n");
             exit(1);
         }
-        close(connectFD);
     }
     fclose(esami);
 }
@@ -332,9 +327,9 @@ int main(int argc, char **argv)
             }
             break;
             default:
-                printf("switch non andata bene\n");
-            
+                printf("switch non andata bene\n"); 
         }
+        close(connectFD);
     }
     printf("\n==============================\n");
 }
