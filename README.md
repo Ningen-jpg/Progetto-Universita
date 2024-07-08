@@ -1,10 +1,17 @@
 # Progetto università
-Il Progetto Università per l'esame di Reti di Calcolatori
+Progetto Reti di Calcolatori
 
+Descrizione del Progetto
+Il progetto realizza un'applicazione Client/Server per la Gestione degli Esami Universitari.
 
-QUANDO PREME 3 NON SOLO CHIUDE LA CONNESSIONE CON STUDENTE MA CHIUDE ANCHE IL PEER STESSO, INOLTRE
-IMPORTANTE:
-    aggiunge un \n al file dopo aver fatto la scelta 3 dello swich case, probabilmente dovuta alla new line di inserimetno
+Come Iniziare
+Per poter utilizzare il progetto, c'è un apposito file con le istruzioni da seguire. Assicurati di consultare questo file per informazioni dettagliate sull'installazione e la configurazione.
 
+Supporto
+C'è un'apposita documentazione che spiega l'implementazione e l'architettura del progetto. Per ulteriori dettagli, fare riferimento alla documentazione fornita.
 
-QUANDO PREMO 3 LA SEGRETERIA CHIUDE IL PROPRIO PROCESSO
+Contributori
+Il progetto è stato mantenuto e contribuito da:
+
+Guadagnuolo Alessandro
+Merola Domenico
