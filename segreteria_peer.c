@@ -30,24 +30,6 @@ int manage_exams(int connfd, int listenfd) // Riceve l'ID che serve a recuperare
     return buff;
 }
 
-void inviaInfo(struct sockaddr_in client, int listenfd) // quando il peer funge da client
-{
-    //ora creiamo la socket che funge da client
-
-    client.sin_family = AF_INET; // Imposta la famiglia di indirizzi su IPv4
-    client.sin_port   = htons(1025); // ci colleghiamo alla porta del server
-    client.sin_addr.s_addr = inet_addr("127.0.0.1"); // Imposta l'indirizzo del client a "127.0.0.1" ovvero l'indirizzo di loopback
-
-    if ( bind(listenfd, (struct sockaddr *) &client, sizeof(client)) < 0 ) { // Associa il socket 'listenfd' all'indirizzo specificato da 'client'; verifica se il binding fallisce
-        perror("bind");
-        exit(1);
-    }
-    if ( listen(listenfd, 100) < 0 ) { // Mette in ascolto il socket 'listenfd' per le connessioni in arrivo con una coda massima di 3 connessioni pendenti; verifica se l'operazione di ascolto fallisce
-        perror("listen");
-        exit(1);
-    }
-}
-
 void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr, int choice)
 {
     int chiave = manage_exams(connectFD, listenFD);
@@ -89,7 +71,7 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
         }
     }
 
-    if (write(connectFD, &righe, sizeof(righe)) < 0)
+    if (write(connectFD, &righe, sizeof(righe)) < 0) //invio num_righe
     {
         perror("errore: num righe non inviato\n");
         exit(1);
@@ -112,38 +94,39 @@ void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct
 {
     ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice); //choice è la scelta dello switch
     //leggo la scelta della data
-    int sceltaData;
-    if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
-    {
-        perror("read non andata bene");
-        exit(-1);
-    }
-    
-    //mando la scelta della tupla sulla quale prenotarci su server
-    int bytescritti;
-    sleep(1);
-    if ((bytescritti= write(socketClientFD, &sceltaData, sizeof(sceltaData))) < 0)
-    {
-        printf("byte scritti: %d\n",bytescritti);
-        perror("Write non andata bene");
-        exit(-1);
-    }
+        int sceltaData;
+        if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
+        {
+            perror("read non andata bene");
+            exit(-1);
+        }
+        
+        //mando la scelta della tupla sulla quale prenotarci su server
+        int bytescritti;
+        sleep(1);
+        if ((bytescritti= write(socketClientFD, &sceltaData, sizeof(sceltaData))) < 0)
+        {
+            printf("byte scritti: %d\n",bytescritti);
+            perror("Write non andata bene");
+            exit(-1);
+        }
 
-    // read del numero progressivo di prenotazioni (è stato già incrementato su server)
-    int numeroProgress;
-    
-    if (read(socketClientFD, &numeroProgress, sizeof(numeroProgress)) < 0)
-    {
-        perror("read non andata bene");
-        exit(-1);
-    }
+        // read del numero progressivo di prenotazioni (è stato già incrementato su server)
+        int numeroProgress;
+        
+        if (read(socketClientFD, &numeroProgress, sizeof(numeroProgress)) < 0)
+        {
+            perror("read non andata bene");
+            exit(-1);
+        }
 
-    //mandiamo il numero progressivo a studente
-    if (write(connectFD, &numeroProgress, sizeof(numeroProgress)) < 0)
-    {
-        perror("Write non andata bene");
-        exit(-1);
-    }
+        //mandiamo il numero progressivo a studente
+        if (write(connectFD, &numeroProgress, sizeof(numeroProgress)) < 0)
+        {
+            perror("Write non andata bene");
+            exit(-1);
+        }
+    
 }
 
 void aggiunta_esame(int socketClientFD){
@@ -288,8 +271,7 @@ int main(int argc, char **argv){
 
             // siamo connessi con il client
             connectFD = accept(listenFD, NULL, NULL);
-
-            int choice;
+            int choice = 0;
             read(connectFD, &choice, sizeof(choice)); // connectFD è fd della connessione con studente
 
             // ho letto la scelta, ora va fatto switch case
@@ -302,7 +284,7 @@ int main(int argc, char **argv){
             }
             if (connect(socketClientFD, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
             {
-                fprintf(stderr, "Errore di connessione\n");
+                fprintf(stderr, "Errore di connessione con il server\n");
                 exit(1);
             }
 
@@ -320,22 +302,17 @@ int main(int argc, char **argv){
                     richiesta_prenotazione(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice);
                 }
                 break;
-                case 3: // lo studente ha deciso di chiudere la connessione con segreteria
-                {
-                    close(connectFD);
-                    close(socketClientFD);
-                    close(listenFD);
-                }
-                break;
             }
-
-            fd_connectedClient[connectFD] = 1; // LO METTO NELLA LISTA DEI CLIENT CONNESSI
-
-            if (maxfd < connectFD)
+            if (choice ==1 || choice == 2)
             {
-                maxfd = connectFD; // RICONTROLLO IL MAX
+                fd_connectedClient[connectFD] = 1; // LO METTO NELLA LISTA DEI CLIENT CONNESSI
+
+                if (maxfd < connectFD)
+                {
+                    maxfd = connectFD; // RICONTROLLO IL MAX
+                }
+                fd_disponibili--;
             }
-            fd_disponibili--;
         }
 
         i = 0;
@@ -358,7 +335,7 @@ int main(int argc, char **argv){
 
             if(connect(socketClientFD, (struct sockaddr*)&client_addr, sizeof(client_addr))< 0)
             { 
-                perror("connect");
+                perror("connect error con il server dentro modalità client\n");
                 exit(-1); 
             } //MI CONNETTO
 

@@ -55,7 +55,7 @@ void sendID(int fd, int argc, char **argv) { // Funzione utilizzata per l'invio 
 
   // Invia l'ID alla segreteria
   
-  if (write(fd, &id, sizeof(id)) != sizeof(id)) { // Scrive i dati contenuti in 'id' nel file descriptor 'fd';
+  if ((write(fd, &id, sizeof(id)))!= sizeof(id)) { // Scrive i dati contenuti in 'id' nel file descriptor 'fd';
     perror("write");
     exit(1);
   }
@@ -64,7 +64,7 @@ void sendID(int fd, int argc, char **argv) { // Funzione utilizzata per l'invio 
 
 void sendScelta(int fd, int scelta) // Funzione utilizzata per l'invio della scelta relativo allo switch-case
 {
-  if(write(fd, &scelta, sizeof(scelta))  != sizeof(scelta))
+  if((write(fd, &scelta, sizeof(scelta)))!= sizeof(scelta))
   {
     perror("Scelta non inviata\n");
     exit(1);
@@ -76,7 +76,7 @@ int ricerca_esami(int fd, int scelta, int argc, char **argv)
 {
   sendScelta(fd, scelta);
   sendID(fd, argc, argv);
-  int num_righe;
+  int num_righe = 0;
 
   // printf("sto per leggere il numero di righe..\n");
   if (read(fd, &num_righe, sizeof(num_righe)) < 0)
@@ -85,10 +85,10 @@ int ricerca_esami(int fd, int scelta, int argc, char **argv)
     exit(1);
   }
   
+    char tuple[num_righe][1024];
   if (num_righe > 0)
   {
     // matrice per le eventuali tuple trovate
-    char tuple[num_righe][1024];
     printf("==================\n");
 
     // printf("sto per leggere le tuple una ad una...\n");
@@ -111,8 +111,16 @@ int ricerca_esami(int fd, int scelta, int argc, char **argv)
   }
   else
   {
+     for (int i = 0; i < num_righe; i++)
+    {
+        if (read(fd, &tuple[i], sizeof(tuple[i])) < 0)
+        {
+          perror("errore: non sono state lette le tuple\n");
+          exit(1);
+        }
+     }
     printf("\nNon ci sono esami con questo ID.\n");
-  }
+}
   return num_righe;
 }
 
@@ -124,15 +132,22 @@ void richiesta_prenotazione(int fd,int scelta, int argc,char **argv){
     printf("\nPer quale data vuoi prenotarti?: ");
     int sceltadata;
     scanf("%d", &sceltadata);
-    sendScelta(fd, sceltadata);
-    int numero_progressivo;
-    if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
+    if (sceltadata <= num_righe)
     {
-      perror("errore: non è stato ricevuto il numero progressivo\n");
-      exit(1);
+        sendScelta(fd, sceltadata);
+        int numero_progressivo;
+        if (read(fd, &numero_progressivo, sizeof(numero_progressivo)) < 0)
+        {
+          perror("errore: non è stato ricevuto il numero progressivo\n");
+          exit(1);
+        }
+        printf("\nPrenotazione effettuata!\n");
+        printf("\nIl tuo numero di prenotazione e' : %d\n", numero_progressivo);
     }
-    printf("\nPrenotazione effettuata!\n");
-    printf("\nIl tuo numero di prenotazione e' : %d\n", numero_progressivo);
+    else
+    {
+      printf("Esame scelto non esiste\n");
+    }
   }
   else{
     printf("Non puoi prenotarti!\n\n");
@@ -146,7 +161,7 @@ int main(int argc, char **argv)
   int fd; // File descriptor per la creazione della socket
   while (1)
   {
-    printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\n3) Interrompi la comunicazione\nScegli: ");
+    printf("1) Ricerca esami disponibili\n2) Effettua una prenotazione\nScegli: ");
     scanf("%d", &scelta);
     fd = creaSocket(argc, argv);
     switch(scelta)
@@ -161,13 +176,8 @@ int main(int argc, char **argv)
         printf("Connessione avvenuta con la segreteria.\n");
         richiesta_prenotazione(fd,scelta,argc,argv);
         break;
-      case 3: 
-        printf("Lo studente interrompe la connessione con la segreteria.\n");
-        sendScelta(fd,scelta);
-        close(fd);
-        exit(0);
       default: 
-        printf("errore: scelta errrata\n");
+        printf("selezionare una tra le scelte elencate\n");
         break;
     }
   }

@@ -216,7 +216,7 @@ void richiesta_prenotazione(int connectFD){
             perror("non è stata correttamente letta la scelta della data");
             exit(-1);
         }
-
+        fclose(esami);
         // ricevuta la scelta data
         FILE *esami = fopen("esami.csv", "r+");
         if (esami == NULL)
@@ -304,7 +304,7 @@ int main(int argc, char **argv)
     int serverfd;
     char * data;
     int connectFD;
-    int scelta;
+    int scelta = 0;
     
     while(1){
         crea_connessione(&connectFD);
@@ -331,6 +331,9 @@ int main(int argc, char **argv)
                 aggiunta_esame(connectFD);
             }
             break;
+            default:
+                printf("switch non andata bene\n");
+            
         }
     }
     printf("\n==============================\n");
