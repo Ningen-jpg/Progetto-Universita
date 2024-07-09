@@ -30,7 +30,7 @@ int manage_exams(int connfd, int listenfd) // Riceve l'ID che serve a recuperare
     return buff;
 }
 
-void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr, int choice)
+int ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr, int choice)
 {
     int chiave = manage_exams(connectFD, listenFD);
 
@@ -61,72 +61,91 @@ void ricerca_esami(int connectFD,int listenFD,int socketClientFD,struct sockaddr
 
     // leggiamo le tuple da server
 
-    int read_value = 0; // utilizzata per verificare se venivano letti tutti i byte
-    for (int i = 0; i < righe; i++)
+    if(righe > 0)
     {
-        if ((read_value = read(socketClientFD, &tuple[i], sizeof(tuple[i]))) < 0) // leggo una ad una le tuple trovate dal server
+        int read_value = 0; // utilizzata per verificare se venivano letti tutti i byte
+        for (int i = 0; i < righe; i++)
         {
-            perror("errore: non è stata letta nessuna tupla\n");
+            if ((read_value = read(socketClientFD, &tuple[i], sizeof(tuple[i]))) < 0) // leggo una ad una le tuple trovate dal server
+            {
+                perror("errore: non è stata letta nessuna tupla\n");
+                exit(1);
+            }
+        }
+        if (write(connectFD, &righe, sizeof(righe)) < 0) // invio num_righe
+        {
+            perror("errore: num righe non inviato\n");
+            exit(1);
+        }
+
+        printf("=========================\n");
+
+        // mando le tuple, riga per riga a studente
+        for (int i = 0; i < righe; i++)
+        {
+            if (write(connectFD, tuple[i], sizeof(tuple[i])) < 0)
+            {
+                perror("errore: non è stata inviata una tupla\n");
+                exit(1);
+            }
+        }
+    }
+    else
+    {
+        if (write(connectFD, &righe, sizeof(righe)) < 0) // invio num_righe
+        {
+            perror("errore: num righe non inviato\n");
             exit(1);
         }
     }
-
-    if (write(connectFD, &righe, sizeof(righe)) < 0) //invio num_righe
-    {
-        perror("errore: num righe non inviato\n");
-        exit(1);
-    }
-
-    printf("=========================\n");
-
-    // mando le tuple, riga per riga a studente
-    for (int i = 0; i < righe; i++)
-    {
-        if (write(connectFD, tuple[i], sizeof(tuple[i])) < 0)
-        {
-            perror("errore: non è stata inviata una tupla\n");
-            exit(1);
-        }
-    }
+    return righe;
 }
 
 void richiesta_prenotazione(int connectFD,int listenFD,int socketClientFD,struct sockaddr_in server_addr, struct sockaddr_in client_addr,int choice) //richiesta prenotazione lato segreteria
 {
-    ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr,choice); //choice è la scelta dello switch
-    //leggo la scelta della data
+    int righe = ricerca_esami(connectFD, listenFD, socketClientFD, server_addr, client_addr, choice); // choice è la scelta dello switch
+    if (righe > 0)
+    {
+        // leggo la scelta della data
         int sceltaData;
-        if(read(connectFD,&sceltaData,sizeof(sceltaData))<0)
+        if (read(connectFD, &sceltaData, sizeof(sceltaData)) < 0) // scelta della tupla su cui prenotarsi
         {
             perror("read non andata bene");
             exit(-1);
         }
-        
-        //mando la scelta della tupla sulla quale prenotarci su server
+
+        // mando la scelta della tupla sulla quale prenotarci su server
         int bytescritti;
         sleep(1);
-        if ((bytescritti= write(socketClientFD, &sceltaData, sizeof(sceltaData))) < 0)
+        if ((bytescritti = write(socketClientFD, &sceltaData, sizeof(sceltaData))) < 0)
         {
-            printf("byte scritti: %d\n",bytescritti);
+            printf("byte scritti: %d\n", bytescritti);
             perror("Write non andata bene");
             exit(-1);
         }
 
+        printf("righe : %d\n", righe);
         // read del numero progressivo di prenotazioni (è stato già incrementato su server)
+
         int numeroProgress;
-        
+
         if (read(socketClientFD, &numeroProgress, sizeof(numeroProgress)) < 0)
         {
             perror("read non andata bene");
             exit(-1);
         }
 
-        //mandiamo il numero progressivo a studente
+        // mandiamo il numero progressivo a studente
         if (write(connectFD, &numeroProgress, sizeof(numeroProgress)) < 0)
         {
             perror("Write non andata bene");
             exit(-1);
         }
-    
+    }
+    else
+    {
+        printf("============Non ci sono esami!\n");
+    }
 }
 
 void aggiunta_esame(int socketClientFD){

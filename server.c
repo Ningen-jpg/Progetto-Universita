@@ -184,14 +184,15 @@ void richiesta_prenotazione(int connectFD){
         }
     }
     
+    // invia num righe
+    if (write(connectFD, &count, sizeof(int)) < 0)
+    {
+        perror("errore, non sono state inviate il num di righe\n");
+        exit(1);
+    }
+
     if (count > 0)
     {
-        // invia num righe
-        if (write(connectFD, &count, sizeof(int)) < 0)
-        {
-            perror("errore, non sono state inviate il num di righe\n");
-            exit(1);
-        }
 
         // invia tuple a segreteria
         int bytesc = 0; //debug

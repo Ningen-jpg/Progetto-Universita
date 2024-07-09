@@ -111,16 +111,8 @@ int ricerca_esami(int fd, int scelta, int argc, char **argv)
   }
   else
   {
-     for (int i = 0; i < num_righe; i++)
-    {
-        if (read(fd, &tuple[i], sizeof(tuple[i])) < 0)
-        {
-          perror("errore: non sono state lette le tuple\n");
-          exit(1);
-        }
-     }
-    printf("\nNon ci sono esami con questo ID.\n");
-}
+      printf("\nNon ci sono esami con questo ID.\n");
+  }
   return num_righe;
 }
 
